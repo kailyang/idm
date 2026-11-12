@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>半导体IDM公司网络部署图 · 华芯半导体（示例）</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%230f2a47'/><path d='M7 14a5 5 0 0110 0' stroke='%235ea3ff' stroke-width='2' fill='none'/><circle cx='12' cy='8' r='2.4' fill='%23f59e0b'/></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#edf1f6; --panel:#fff; --ink:#16263a; --ink2:#51617a; --line:#d5dee8;
+  --navy:#0f2a47; --navy2:#1b3d63;
+  --it:#2563eb; --it-bg:#eaf1ff; --it-line:#b9d0ff;
+  --ot:#d97706; --ot-bg:#fdf3e2; --ot-line:#f3d6a8;
+  --idmz:#7c3aed; --idmz-bg:#f4ecfd; --idmz-line:#d9c2f7;
+  --dmz:#0e8fa8; --dmz-bg:#e4f5f9; --dmz-line:#a9dce8;
+  --sec:#dc2626; --sec-bg:#fdeaea; --sec-line:#f3b9b9;
+  --mgmt:#475569; --mgmt-bg:#eef1f5; --mgmt-line:#c6ced8;
+  --ok:#15803d; --warn:#b45309;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  --sans:"Noto Sans SC",-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  --shadow:0 1px 2px rgba(15,42,71,.06),0 4px 14px rgba(15,42,71,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.mono{font-family:var(--mono)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 22px}
+
+/* ===== 顶栏 ===== */
+.topbar{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#e8f0fb;padding:26px 0 20px;border-bottom:3px solid #f59e0b}
+.topbar .wrap{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;justify-content:space-between}
+.brand h1{font-size:24px;font-weight:900;letter-spacing:.5px;color:#fff}
+.brand p{margin-top:6px;font-size:13px;color:#9fc0e6}
+.brand .chip{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:2px 11px;font-size:12px;margin-right:7px;color:#cfe1f7}
+.meta-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:10px 15px;font-size:12.5px;min-width:230px}
+.meta-card div{display:flex;justify-content:space-between;gap:14px;padding:2px 0}
+.meta-card b{color:#fff;font-weight:700}
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(15,42,71,.05)}
+.nav .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:6px;padding-bottom:6px}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--ink2);font-weight:500;font-size:13px;padding:7px 13px;border-radius:7px;transition:.15s}
+.nav a:hover{background:var(--it-bg);color:var(--it)}
+.nav a .n{font-family:var(--mono);color:#9aa8ba;font-size:11px;margin-right:5px}
+
+/* ===== 区块 ===== */
+section.block{padding:38px 0 8px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;border-left:5px solid var(--it);padding-left:13px}
+.sec-head h2{font-size:20px;font-weight:900}
+.sec-head .en{font-family:var(--mono);font-size:12px;color:#8a98ab;text-transform:uppercase;letter-spacing:1px}
+.sec-head.ot{border-color:var(--ot)} .sec-head.idmz{border-color:var(--idmz)} .sec-head.sec{border-color:var(--sec)}
+.lead{color:var(--ink2);font-size:13.5px;max-width:980px;margin-bottom:18px}
+.lead b{color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+
+/* ===== 分区 zone ===== */
+.zone{border:1.5px solid var(--line);border-radius:11px;padding:13px 14px 15px;position:relative;background:var(--panel)}
+.zone::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:11px 0 0 11px}
+.zone.z-it{background:var(--it-bg);border-color:var(--it-line)} .zone.z-it::before{background:var(--it)}
+.zone.z-ot{background:var(--ot-bg);border-color:var(--ot-line)} .zone.z-ot::before{background:var(--ot)}
+.zone.z-idmz{background:var(--idmz-bg);border-color:var(--idmz-line)} .zone.z-idmz::before{background:var(--idmz)}
+.zone.z-dmz{background:var(--dmz-bg);border-color:var(--dmz-line)} .zone.z-dmz::before{background:var(--dmz)}
+.zone.z-sec{background:var(--sec-bg);border-color:var(--sec-line)} .zone.z-sec::before{background:var(--sec)}
+.zone.z-mgmt{background:var(--mgmt-bg);border-color:var(--mgmt-line)} .zone.z-mgmt::before{background:var(--mgmt)}
+.zone-head{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-bottom:11px;padding-left:6px}
+.zone-head .zt{font-weight:700;font-size:14.5px}
+.zone-head .zsub{font-size:12px;color:var(--ink2)}
+.badge{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(255,255,255,.75);border:1px solid var(--line);color:var(--ink2)}
+.badge.lvl{font-weight:700}
+.grid{display:grid;gap:9px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
+
+/* ===== 设备节点 node ===== */
+.node{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 10px;display:flex;gap:9px;align-items:flex-start;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.node:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,42,71,.13);border-color:#9db4d4}
+.node .ic{flex:0 0 30px;width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--mgmt-bg)}
+.node .ic svg{width:19px;height:19px}
+.node .nt{font-weight:700;font-size:12.8px;line-height:1.35}
+.node .nd{font-size:11px;color:var(--ink2);line-height:1.4;margin-top:2px}
+.node .ips{font-family:var(--mono);font-size:10.5px;color:#6b7c92;margin-top:3px;word-break:break-all}
+.node.k-fw{border-color:var(--sec-line);background:#fff7f7} .node.k-fw .ic{background:var(--sec-bg)}
+.node.k-tool .ic{background:var(--ot-bg)} .node.k-vdi .ic{background:var(--it-bg)} .node.k-srv .ic{background:var(--dmz-bg)}
+.node.k-sw .ic{background:var(--mgmt-bg)} .node.k-router .ic{background:var(--idmz-bg)}
+.node.ha::after{content:"HA 双机";position:absolute;right:-26px;top:7px;transform:rotate(45deg);background:var(--ok);color:#fff;font-size:9px;padding:1px 26px;font-weight:700}
+
+/* ===== 链路 bus / link ===== */
+.bus{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 0;gap:3px}
+.bus .vline{width:2.5px;height:18px;background:linear-gradient(var(--mgmt),#8597ab);border-radius:2px;position:relative}
+.bus .vline::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #8597ab}
+.bus .blab{font-family:var(--mono);font-size:10.5px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:2px 10px;color:var(--ink2);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.bus .vline.up::after{display:none} .bus .vline.up::before{content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:7px solid #8597ab}
+.hlink{display:flex;align-items:center;gap:6px;justify-content:center;min-height:24px;min-width:0}
+.hlink .hl{flex:1 1 0;height:2.5px;background:#8597ab;border-radius:2px;position:relative;min-width:0}
+.no-pop .node{cursor:default}
+.no-pop .node:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.kv6{grid-template-columns:repeat(3,1fr)}
+.hlink .hlab{font-family:var(--mono);font-size:10px;color:var(--ink2);white-space:nowrap}
+.dashed{background:repeating-linear-gradient(90deg,#8597ab 0 5px,transparent 5px 10px)!important;height:2px!important}
+
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff}
+table th{background:var(--navy);color:#dbe7f5;text-align:left;padding:10px 12px;font-weight:700;font-size:12px;white-space:nowrap}
+table td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table tr:nth-child(even) td{background:#f8fafc}
+table tr:hover td{background:var(--it-bg)}
+table .mono{font-size:11.5px;color:var(--navy2)}
+.pill{display:inline-block;padding:1.5px 8px;border-radius:5px;font-size:11px;font-weight:700;font-family:var(--mono)}
+.pill.allow{background:#dcfce7;color:var(--ok)} .pill.deny{background:#fdeaea;color:var(--sec)} .pill.oneway{background:#fef3c7;color:var(--warn)}
+.tbl-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.search{padding:8px 13px;border:1px solid var(--line);border-radius:8px;font-size:13px;min-width:240px;font-family:var(--sans)}
+.search:focus{outline:none;border-color:var(--it);box-shadow:0 0 0 3px var(--it-bg)}
+select.f{padding:8px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;font-family:var(--sans)}
+
+/* ===== 图例 ===== */
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px;margin-top:6px}
+.legend .li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+.legend .sw{width:16px;height:16px;border-radius:5px;flex:0 0 16px;border:1.5px solid rgba(0,0,0,.12)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.step{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px;position:relative}
+.step .no{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--it);opacity:.85}
+.step h4{font-size:13.5px;margin:5px 0 5px}
+.step p{font-size:12px;color:var(--ink2)}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:11px 14px;font-size:12.5px;color:#7c5a12;margin-top:14px}
+.note b{color:#92660c}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
+.kv .k{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.kv .k .t{font-size:11.5px;color:var(--ink2)} .kv .k .v{font-weight:700;font-size:13.5px;margin-top:2px}
+
+/* 详情弹层 */
+#detail{position:fixed;right:18px;bottom:18px;width:300px;max-width:calc(100vw - 36px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(15,42,71,.25);padding:16px;z-index:99;display:none;animation:pop .18s ease}
+#detail.show{display:block}
+@keyframes pop{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+#detail .x{position:absolute;right:10px;top:8px;border:none;background:none;font-size:18px;cursor:pointer;color:#94a3b8;line-height:1;font-family:var(--sans)}
+#detail h5{font-size:14.5px;margin-bottom:6px;padding-right:22px}
+#detail .dl{font-size:12px;color:var(--ink2)} #detail .dl b{color:var(--ink)}
+#detail .row{display:flex;gap:8px;margin-top:7px;font-size:11.5px}
+#detail .row .mono{background:var(--mgmt-bg);border-radius:5px;padding:2px 7px}
+footer{margin-top:40px;background:var(--navy);color:#93b0d1;font-size:12px;padding:22px 0;text-align:center}
+@media(max-width:980px){.g5{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}.meta-card{min-width:100%;width:100%}.panel{padding:13px}.topbar h1{font-size:20px}.kv6{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<!-- ===== SVG 图标库 ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-7.97A5.5 5.5 0 0117 9.5a3.5 3.5 0 01-.3 6.98L16.5 18H7z" fill="none" stroke="#0e8fa8" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="i-fw" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="#fdeaea" stroke="#dc2626" stroke-width="1.6"/><path d="M3 9h18M3 14h18M8 4v16M14 4v16" stroke="#dc2626" stroke-width="1.2"/></symbol>
+<symbol id="i-router" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="8" rx="2" fill="#f4ecfd" stroke="#7c3aed" stroke-width="1.6"/><path d="M7 11V8m4 3V6m4 5v2" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="15" r="1" fill="#7c3aed"/><circle cx="12" cy="15" r="1" fill="#7c3aed"/></symbol>
+<symbol id="i-sw" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.6" fill="#eef1f5" stroke="#475569" stroke-width="1.5"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01" stroke="#475569" stroke-width="2.2" stroke-linecap="round"/></symbol>
+<symbol id="i-srv" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="7" rx="1.5" fill="#e4f5f9" stroke="#0e8fa8" stroke-width="1.5"/><rect x="5" y="14" width="14" height="7" rx="1.5" fill="#e4f5f9" stroke="#0e8fa8" stroke-width="1.5"/><circle cx="16" cy="6.5" r="1" fill="#0e8fa8"/><circle cx="16" cy="17.5" r="1" fill="#0e8fa8"/></symbol>
+<symbol id="i-tool" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="#fdf3e2" stroke="#d97706" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="none" stroke="#d97706" stroke-width="1.5"/><circle cx="12" cy="12" r="1.3" fill="#d97706"/></symbol>
+<symbol id="i-vdi" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5" fill="#eaf1ff" stroke="#2563eb" stroke-width="1.5"/><path d="M9 20h6M12 16v4" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#fdeaea" stroke="#dc2626" stroke-width="1.6"/><path d="M8 10V7a4 4 0 018 0v3" fill="none" stroke="#dc2626" stroke-width="1.6"/></symbol>
+<symbol id="i-sensor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="#fdf3e2" stroke="#d97706" stroke-width="1.6"/><path d="M12 9v3l2 2" stroke="#d97706" stroke-width="1.5" stroke-linecap="round"/></symbol>
+</defs>
+</svg>
+
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <h1>半导体 IDM 公司网络部署图</h1>
+      <p>
+        <span class="chip">华芯半导体（虚拟示例企业）</span>
+        覆盖晶圆制造 · 封测 · IC设计 · 多子公司 · 机台联网 · 办公VDI · 边界与工业防火墙
+      </p>
+    </div>
+    <div class="meta-card">
+      <div><span>文档版本</span><b class="mono">v1.0</b></div>
+      <div><span>设计基线</span><b>IEC 62443 / Purdue / SEMI E187</b></div>
+      <div><span>编制日期</span><b class="mono">2026-11-08</b></div>
+      <div><span>密级</span><b>内部 · 规划稿</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="#method"><span class="n">01</span>绘制方法</a>
+    <a href="#legend"><span class="n">02</span>图例与符号</a>
+    <a href="#wan"><span class="n">03</span>集团广域互联</a>
+    <a href="#hq"><span class="n">04</span>总部Fab1总览</a>
+    <a href="#ot"><span class="n">05</span>生产机台网</a>
+    <a href="#vdi"><span class="n">06</span>办公VDI</a>
+    <a href="#fw"><span class="n">07</span>防火墙策略</a>
+    <a href="#ip"><span class="n">08</span>网段规划</a>
+  </div>
+</nav>
+
+<main class="wrap">
+<!-- ===== 01 绘制方法 ===== -->
+<section class="block" id="method">
+  <div class="sec-head"><h2>网络部署图应该怎么画</h2><span class="en">How to draw a network deployment diagram</span></div>
+  <p class="lead">网络部署图的本质是<b>把“信任边界、分区、设备、链路与访问关系”讲清楚</b>。专业拓扑遵循自上而下的分层约定：<b>互联网（云）→ 边界防火墙 → 核心层 → 汇聚层 → 接入层 → 终端</b>，让人一眼能找到防火墙这道信任边界。半导体工厂还要叠加 <b>IT/OT 分离与工艺区微隔离</b>。标准做法分 8 步：</p>
+  <div class="panel">
+    <div class="steps">
+      <div class="step"><div class="no">01</div><h4>定范围与受众</h4><p>区分物理拓扑（机柜、布线、链路）与逻辑拓扑（VLAN、路由、安全域）；先画一张总览，再按站点/分区出详图。</p></div>
+      <div class="step"><div class="no">02</div><h4>选参照模型</h4><p>企业网用核心-汇聚-接入三层模型；工控网用 Purdue/IEC 62443 分区（L0~L5），半导体遵循 SEMI E187。</p></div>
+      <div class="step"><div class="no">03</div><h4>分区分域</h4><p>按业务与安全等级划分安全 Zone 与 VLAN：办公、DMZ、服务器、iDMZ、MES、各工艺机台区、管理网，域间默认拒绝。</p></div>
+      <div class="step"><div class="no">04</div><h4>清点资产与图标</h4><p>统一符号：云=互联网、砖墙=防火墙、圆柱=路由器、矩形=交换机、机架=服务器；同类型设备用同一套图标与配色。</p></div>
+      <div class="step"><div class="no">05</div><h4>画链路与标注</h4><p>标注设备名、VLAN ID、网段/掩码、IP、带宽（10G/40G）、协议（OSPF/BGP/HSMS）、主备与 Trunk 关系。</p></div>
+      <div class="step"><div class="no">06</div><h4>标信任边界与策略</h4><p>用防火墙/网闸图标明确边界，附“源→目的→端口→动作”策略矩阵；高可用（HA/双上联/双ISP）单独标注。</p></div>
+      <div class="step"><div class="no">07</div><h4>图例/标题/版本</h4><p>每张图配标题、图例、比例尺或说明、版本号、编制人/日期与变更记录，便于评审与后续维护。</p></div>
+      <div class="step"><div class="no">08</div><h4>校验与评审</h4><p>核对无孤岛、无越权直连、无地址冲突；与安全、运维、厂务会签，落地后随变更持续更新。</p></div>
+    </div>
+    <div class="note"><b>标注最小集合：</b>设备主机名与型号 · 接口/端口 · VLAN ID · IP 地址与掩码 · 网关 · 链路带宽与介质（光纤/无线用虚线）· 安全域归属 · 主备/HA 关系。缺这些信息，图就只能“看个样子”，不能用于实施。</div>
+  </div>
+</section>
+
+<!-- ===== 02 图例与符号 ===== -->
+<section class="block" id="legend">
+  <div class="sec-head"><h2>图例与符号约定</h2><span class="en">Legend &amp; notation</span></div>
+  <div class="panel">
+    <h4 style="font-size:13.5px;margin-bottom:10px">安全域颜色编码（本图全篇统一）</h4>
+    <div class="legend">
+      <div class="li"><span class="sw" style="background:var(--it-bg);border-color:var(--it)"></span>IT 办公/VDI 域</div>
+      <div class="li"><span class="sw" style="background:var(--dmz-bg);border-color:var(--dmz)"></span>DMZ 隔离区</div>
+      <div class="li"><span class="sw" style="background:var(--idmz-bg);border-color:var(--idmz)"></span>工业 iDMZ</div>
+      <div class="li"><span class="sw" style="background:var(--ot-bg);border-color:var(--ot)"></span>OT 生产/机台域</div>
+      <div class="li"><span class="sw" style="background:var(--sec-bg);border-color:var(--sec)"></span>安全/SOC 域</div>
+      <div class="li"><span class="sw" style="background:var(--mgmt-bg);border-color:var(--mgmt)"></span>管理/基础设施域</div>
+    </div>
+    <h4 style="font-size:13.5px;margin:18px 0 10px">设备符号</h4>
+    <div class="grid g4 no-pop">
+      <div class="node"><span class="ic"><svg><use href="#i-cloud" xlink:href="#i-cloud"/></svg></span><div><div class="nt">互联网 / 云</div><div class="nd">外部网络、公有云</div></div></div>
+      <div class="node k-fw"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">防火墙 / 工业防火墙</div><div class="nd">信任边界、策略执行</div></div></div>
+      <div class="node"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">路由器 / SD-WAN CPE</div><div class="nd">三层路由、隧道封装</div></div></div>
+      <div class="node"><span class="ic"><svg><use href="#i-sw" xlink:href="#i-sw"/></svg></span><div><div class="nt">交换机（核心/汇聚/接入）</div><div class="nd">二层交换、VLAN Trunk</div></div></div>
+      <div class="node"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">服务器 / 应用</div><div class="nd">MES、ERP、AD 等</div></div></div>
+      <div class="node k-tool"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">生产机台 / 工艺设备</div><div class="nd">光刻、刻蚀等</div></div></div>
+      <div class="node k-vdi"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">VDI 瘦终端 / 桌面</div><div class="nd">零终端、虚拟桌面</div></div></div>
+      <div class="node"><span class="ic"><svg><use href="#i-sensor" xlink:href="#i-sensor"/></svg></span><div><div class="nt">PLC / 传感器 / 厂务</div><div class="nd">FMCS、SCADA</div></div></div>
+    </div>
+    <h4 style="font-size:13.5px;margin:18px 0 10px">线型与标记</h4>
+    <div class="legend">
+      <div class="li"><span style="width:26px;height:2.5px;background:#8597ab;border-radius:2px"></span>实线＝有线光纤链路</div>
+      <div class="li"><span class="dashed" style="width:26px"></span>虚线＝无线 / 加密隧道</div>
+      <div class="li"><span class="pill allow" style="font-size:10px">允许</span>策略放行</div>
+      <div class="li"><span class="pill deny" style="font-size:10px">拒绝</span>默认阻断</div>
+      <div class="li"><span class="pill oneway" style="font-size:10px">单向</span>网闸/单向传输</div>
+      <div class="li"><span class="badge" style="font-size:10px">HA</span>主备/双机高可用</div>
+    </div>
+  </div>
+</section>
+<!-- ===== 03 集团广域互联 ===== -->
+<section class="block" id="wan">
+  <div class="sec-head"><h2>集团广域互联拓扑（多子公司 / 多厂区）</h2><span class="en">Group WAN · MPLS + SD-WAN dual-plane</span></div>
+  <p class="lead">采用<b>双平面广域架构</b>：底层是运营商 <b>MPLS 专线骨干</b>（SLA 保障，承载 MES/生产实时与核心同步流量）；上层是 <b>SD-WAN Overlay</b>（Internet+MPLS 双链路，GRE over IPsec 加密、应用感知选路）。各站点内网网段互不冲突，总部 Fab1 作为路由反射器（RR），BGP AS 65000，骨干互联地址统一使用 <b class="mono">10.255.0.0/16</b>。</p>
+  <div class="panel">
+    <!-- 互联网与ISP -->
+    <div class="grid g3">
+      <div class="node" data-t="公有云 / SaaS" data-d="AWS/阿里云、Office365、邮件SaaS等；各站点经SD-WAN本地Internet突围或回源统一出口，配合云访问安全代理。"><span class="ic"><svg><use href="#i-cloud" xlink:href="#i-cloud"/></svg></span><div><div class="nt">公有云 / SaaS</div><div class="ips">VPC 经 IPsec/云专线接入</div></div></div>
+      <div class="node" data-t="ISP-A 电信主用" data-d="10G BGP 接入，公网地址段由运营商分配，主用互联网出口，与ISP-B互为备份。"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">ISP-A 电信（主）</div><div class="ips">10G · 公网 BGP</div></div></div>
+      <div class="node" data-t="ISP-B 联通备用" data-d="10G BGP 接入，备用出口，故障时SG自动切换，实现出口冗余与负载分担。"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">ISP-B 联通（备）</div><div class="ips">10G · 公网 BGP</div></div></div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">边界 NGFW HA · SSL VPN 网关 · SD-WAN Edge（总部 Hub）</span></div>
+
+    <!-- 双平面骨干 -->
+    <div class="zone z-mgmt">
+      <div class="zone-head"><span class="zt">MPLS 专线骨干（数据平面）</span><span class="badge">运营商 SLA · 低时延</span><span class="badge mono">10.255.0.0/16</span></div>
+      <div class="hlink"><span class="hl"></span><span class="hlab">Fab1 ⇄ Fab2 ⇄ 封测 ⇄ 设计 ⇄ 灾备 · CE-PE 双归 · OSPF/BGP</span><span class="hl"></span></div>
+    </div>
+    <div class="bus"><div class="vline up"></div><div class="vline"></div><span class="blab">SD-WAN Overlay：GRE over IPsec · 应用感知 · 双链路动态选路 · Hub-Spoke + Full-Mesh</span></div>
+    <div class="zone z-idmz">
+      <div class="zone-head"><span class="zt">SD-WAN 控制平面（Overlay）</span><span class="badge">IPsec 加密</span><span class="badge">AS 65000 · Fab1=RR</span></div>
+      <div class="hlink"><span class="hl dashed"></span><span class="hlab">vBond/vSmart 编排 · ZTP 零接触开局 · 按应用SLA选路（生产走MPLS，办公走Internet）</span><span class="hl dashed"></span></div>
+    </div>
+
+    <div class="bus"><div class="vline"></div><span class="blab">各站点 SD-WAN CPE / 站点防火墙（双链路接入）</span></div>
+
+    <!-- 站点 -->
+    <div class="grid g3">
+      <div class="node k-fw ha" data-t="总部晶圆一厂 Fab1（合肥）" data-d="集团核心节点与路由反射器，含双活数据中心、生产机台网与总部办公VDI；经DCI专线对接灾备。" data-ip="10.10.0.0/16"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">总部 Fab1（合肥）· Hub</div><div class="nd">NGFW HA · 双ISP · DCI</div><div class="ips">10.10.0.0/16</div></div></div>
+      <div class="node k-fw" data-t="晶圆二厂 Fab2" data-d="第二座晶圆厂，机台网分区与Fab1一致，MES就近接入，跨厂配方/良率数据经MPLS同步。" data-ip="10.20.0.0/16"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">晶圆二厂 Fab2</div><div class="nd">MPLS + SD-WAN</div><div class="ips">10.20.0.0/16</div></div></div>
+      <div class="node k-fw" data-t="封测子公司 OSAT（无锡）" data-d="封装测试厂，含测试机台、分选机、自动仓储；与Fab间经骨干下发成品/批次数据。" data-ip="10.30.0.0/16"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">封测子公司 OSAT（无锡）</div><div class="nd">MPLS + SD-WAN</div><div class="ips">10.30.0.0/16</div></div></div>
+      <div class="node k-fw" data-t="IC 设计子公司（上海）" data-d="研发设计网，EDA/仿真算力、设计图纸与IP核，数据敏感，独立安全域并经防火墙受控访问PLM。" data-ip="10.40.0.0/16"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">IC 设计子公司（上海）</div><div class="nd">SD-WAN · 大带宽</div><div class="ips">10.40.0.0/16</div></div></div>
+      <div class="node k-fw" data-t="海外子公司（日本/美国）" data-d="销售与FAE办事处，本地Internet突围+回源双模式，国际链路经SD-WAN优化，SSL VPN接入总部VDI。" data-ip="10.50.0.0/16"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">海外子公司（日本/美国）</div><div class="nd">SD-WAN · 本地突围</div><div class="ips">10.50.0.0/16</div></div></div>
+      <div class="node" data-t="异地灾备中心 DR" data-d="双活/冷热备，核心数据与虚拟化备份，经DCI波分专线做存储级同步，MPLS作为带外管理通道。" data-ip="10.99.0.0/16"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">异地灾备中心 DR</div><div class="nd">DCI 专线 · 存储同步</div><div class="ips">10.99.0.0/16</div></div></div>
+    </div>
+    <div class="note"><b>远程/移动接入：</b>外出员工与海外人员先经 <b>SSL VPN 网关（DMZ）</b> 做双因子认证，再进入 <b>VDI 桌面</b>访问内网，<b>终端不直接落内网</b>；设备厂商远程维护则统一走 iDMZ 堡垒机（见生产网章节），限时授权、全程录屏审计。</div>
+  </div>
+</section>
+<!-- ===== 04 总部 Fab1 总览 ===== -->
+<section class="block" id="hq">
+  <div class="sec-head"><h2>总部 Fab1 网络总体架构（IT / iDMZ / OT 三层防御）</h2><span class="en">Fab1 logical architecture · defense in depth</span></div>
+  <p class="lead">Fab1 按<b>纵深防御</b>组织：南北向由 <b>边界 NGFW（HA）</b> 把关；内部以<b>双机核心交换机</b>为三层网关划分 IT 各安全域；IT 与生产 OT 之间不直连，强制经过 <b>工业 iDMZ + 两侧工业防火墙</b>；另有物理独立的<b>带外管理网（OOB）</b>与安全 SOC。下文先看 IT 侧，再看 iDMZ 与 OT 侧。</p>
+  <div class="panel">
+    <!-- 边界 -->
+    <div class="grid g3">
+      <div class="node k-fw ha" data-t="边界下一代防火墙 NGFW（主备 HA）" data-d="南北向总出口：状态检测、IPS入侵防御、应用识别与管控、URL过滤、防病毒、NAT；双机会话同步，故障秒级切换。" data-ip="VLAN300 网关 / HA"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">边界 NGFW（主备 HA）</div><div class="nd">IPS · AV · URL · NAT</div><div class="ips">Inside/Outside/DMZ 三区域</div></div></div>
+      <div class="node" data-t="SD-WAN Edge / 出口路由" data-d="对接MPLS与SD-WAN双平面，BGP与核心交换路由互联，分支流量经此进入集团骨干。"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">SD-WAN Edge / 出口路由</div><div class="ips">AS65000 · 双上行</div></div></div>
+      <div class="node k-fw" data-t="WAF Web 应用防火墙" data-d="对DMZ对外Web系统做应用层防护，防SQL注入/XSS/CC，与NGFW联动。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">WAF（对外应用）</div><div class="ips">反向代理 · 443</div></div></div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">100G/40G 双上联 · 端口捆绑 Port-Channel</span></div>
+
+    <!-- 核心 -->
+    <div class="grid g2">
+      <div class="node k-sw ha" data-t="核心交换机 Core-SW（双机 VSU/堆叠）" data-d="全网三层网关，承载各VLAN SVI，OSPF区域0，VRRP/双活，40/100G骨干，策略路由与流量镜像。"><span class="ic"><svg><use href="#i-sw" xlink:href="#i-sw"/></svg></span><div><div class="nt">核心交换机 Core-SW（双机）</div><div class="nd">L3 网关 · OSPF · VRRP</div><div class="ips">40G/100G 背板</div></div></div>
+      <div class="node k-sw" data-t="数据中心 Spine-Leaf（服务器接入）" data-d="服务器与VDI资源池经Leaf接入，Spine高速互联，支撑虚拟化/存储东西向流量，支持VXLAN。"><span class="ic"><svg><use href="#i-sw" xlink:href="#i-sw"/></svg></span><div><div class="nt">DC Spine-Leaf 交换矩阵</div><div class="nd">VXLAN · 存储/迁移网</div><div class="ips">25G 接入 / 100G 骨干</div></div></div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">内部防火墙分区 · 各安全域 VLAN Trunk（默认拒绝、按需放行）</span></div>
+
+    <!-- IT 侧分区 -->
+    <div class="grid g3">
+      <div class="zone z-dmz">
+        <div class="zone-head"><span class="zt">DMZ 隔离区</span><span class="badge lvl">L4/L5</span><span class="badge mono">VLAN300 · 10.10.30.0/24</span></div>
+        <div class="grid">
+          <div class="node k-srv" data-t="对外门户 / Web 服务器" data-d="官网与合作伙伴门户，经WAF发布，仅反向代理可达，数据库不暴露。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">对外门户 Web</div><div class="ips">10.10.30.11</div></div></div>
+          <div class="node k-srv" data-t="邮件网关 / 外部DNS" data-d="邮件反垃圾反钓鱼，外部DNS权威解析，与内网邮件中继隔离。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">邮件网关 / 外部DNS</div><div class="ips">10.10.30.12/.13</div></div></div>
+          <div class="node k-srv" data-t="SSL VPN 网关" data-d="远程接入双因子认证，登录后只可达VDI，不直接访问内网资源。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">SSL VPN 网关</div><div class="ips">10.10.30.14:443</div></div></div>
+        </div>
+      </div>
+
+      <div class="zone z-it">
+        <div class="zone-head"><span class="zt">IT 办公 / VDI 域</span><span class="badge lvl">L4</span><span class="badge mono">VLAN100/120/130</span></div>
+        <div class="grid">
+          <div class="node k-vdi" data-t="VDI 基础架构与桌面池" data-d="连接服务器+桌面池+Composer，瘦终端/零终端接入，研发/办公/生产分池，详见VDI章节。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">VDI 连接/桌面池</div><div class="ips">VLAN210 · 10.10.210.0</div></div></div>
+          <div class="node k-vdi" data-t="瘦终端 / 零终端接入" data-d="办公位零终端，固定配置、无本地存储，PoE供电，经NAC准入。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">瘦终端接入</div><div class="ips">VLAN100 · 10.10.100.0</div></div></div>
+          <div class="node k-sw" data-t="办公无线 / 打印会议" data-d="企业WiFi（802.1X认证）、网络打印、视频会议，独立VLAN与访客网隔离。"><span class="ic"><svg><use href="#i-sw" xlink:href="#i-sw"/></svg></span><div><div class="nt">无线AP / 打印 / 会议</div><div class="ips">VLAN130/120</div></div></div>
+        </div>
+      </div>
+
+      <div class="zone z-it">
+        <div class="zone-head"><span class="zt">企业服务器区</span><span class="badge lvl">L4</span><span class="badge mono">VLAN200 · 10.10.200.0</span></div>
+        <div class="grid">
+          <div class="node k-srv" data-t="ERP / OA / PLM" data-d="SAP ERP、协同OA、产品生命周期PLM；经内部防火墙受控访问，关键系统双因子。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">ERP(SAP)/OA/PLM</div><div class="ips">10.10.200.11-13</div></div></div>
+          <div class="node k-srv" data-t="AD / DNS / DHCP" data-d="域控、内部DNS、DHCP双机冗余，统一身份与时间源(NTP)，是认证与寻址基础。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">AD/DNS/DHCP</div><div class="ips">10.10.200.21/.22</div></div></div>
+          <div class="node k-srv" data-t="文件 / 虚拟化 / 存储" data-d="文件服务、虚拟化集群与分布式存储，vMotion/存储独立VLAN220，数据备份到DR。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">文件/虚拟化/存储</div><div class="ips">VLAN220 · 10.10.220.0</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:12px">
+      <div class="zone z-sec">
+        <div class="zone-head"><span class="zt">安全管理 / SOC</span><span class="badge mono">VLAN400 · 10.10.40.0</span></div>
+        <div class="grid g2">
+          <div class="node k-fw" data-t="SIEM / 日志审计" data-d="集中采集全网设备、机台与服务器日志，关联分析与告警，满足等保留存≥6个月。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">SIEM/日志审计</div><div class="ips">10.10.40.11</div></div></div>
+          <div class="node k-fw" data-t="堡垒机 / NAC / 漏扫" data-d="运维跳转堡垒机、NAC网络准入、漏洞扫描与补丁分发，所有运维先过堡垒机。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">堡垒机/NAC/漏扫</div><div class="ips">10.10.40.12-14</div></div></div>
+        </div>
+      </div>
+      <div class="zone z-mgmt">
+        <div class="zone-head"><span class="zt">带外管理 OOB（物理独立）</span><span class="badge mono">VLAN999 · 10.10.255.0</span></div>
+        <div class="grid g2">
+          <div class="node k-sw" data-t="独立管理交换机" data-d="与生产网物理隔离的管理平面，独立布线，故障时仍可登入设备恢复。"><span class="ic"><svg><use href="#i-sw" xlink:href="#i-sw"/></svg></span><div><div class="nt">OOB 管理交换机</div><div class="ips">10.10.255.1</div></div></div>
+          <div class="node k-srv" data-t="Console / iDRAC·IPMI" data-d="设备Console服务器、服务器iDRAC/IPMI、KVM，集中带外控制台与电源管理。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">Console/iDRAC/IPMI</div><div class="ips">10.10.255.0/24</div></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- iDMZ -->
+    <div class="bus"><div class="vline"></div><span class="blab">工业防火墙 FW-IT（IT 侧 · 协议感知 / SECS-GEM 函数级控制）</span></div>
+    <div class="zone z-idmz">
+      <div class="zone-head"><span class="zt">工业 DMZ（iDMZ）· 双宿主缓冲</span><span class="badge lvl">L3.5</span><span class="badge mono">VLAN500 · 10.10.50.0/24</span></div>
+      <div class="grid g4">
+        <div class="node k-srv" data-t="工业历史库 Historian 汇聚" data-d="采集机台与MES数据，向IT侧只读开放报表，IT无法反向触达机台，是数据出OT的唯一受控出口。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">Historian 汇聚</div><div class="ips">10.10.50.11</div></div></div>
+        <div class="node k-srv" data-t="补丁 / 防病毒 / 软件仓库" data-d="OT补丁与病毒库先在此隔离验证，再受控下发，机台不直接访问互联网更新。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">补丁/AV 仓库</div><div class="ips">10.10.50.12</div></div></div>
+        <div class="node k-srv" data-t="厂商远程维护跳板" data-d="设备厂商经此+堡垒机接入指定机台，临时申请、限时授权、全程录屏，会话结束即回收。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">远程维护跳板</div><div class="ips">10.10.50.13</div></div></div>
+        <div class="node k-srv" data-t="应用 / 协议网关" data-d="MES-ERP接口、SECS/GEM 与 OPC UA 转换、Interface A EDA网关，做协议剥离与白名单。"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">协议/接口网关</div><div class="ips">10.10.50.14</div></div></div>
+      </div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">工业防火墙 FW-OT（OT 侧 · 默认拒绝 / 白名单 / 可网闸单向）</span></div>
+
+    <!-- OT 侧 -->
+    <div class="zone z-ot">
+      <div class="zone-head"><span class="zt">OT 生产域 — MES / EAP 核心</span><span class="badge lvl">L2/L3</span><span class="badge mono">VLAN600 · 10.10.60.0/24</span></div>
+      <div class="grid g3">
+        <div class="node k-srv" data-t="MES 制造执行系统" data-d="工单、批次、工艺流程与派工，24×7高可用双机，是生产指挥核心，对接ERP/iDMZ。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">MES（双机 HA）</div><div class="ips">10.10.60.11/.12</div></div></div>
+        <div class="node k-srv" data-t="EAP 设备自动化程序" data-d="通过HSMS(TCP5000)/SECS/GEM与全部机台通信，下发配方、采集事件与状态，机台只与EAP对话。"><span class="ic"><svg><use href="#i-router" xlink:href="#i-router"/></svg></span><div><div class="nt">EAP（SECS/GEM）</div><div class="ips">10.10.60.21</div></div></div>
+        <div class="node k-srv" data-t="RMS / YMS / SPC / 报表" data-d="配方管理、良率管理、统计过程控制与生产报表，数据汇总至Historian。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">RMS/YMS/SPC</div><div class="ips">10.10.60.31-33</div></div></div>
+      </div>
+      <div class="hlink" style="margin-top:12px"><span class="hl"></span><span class="hlab">OT 汇聚交换机（双机）→ 各工艺区工业防火墙微隔离（9 大工艺区，详见下一章）</span><span class="hl"></span></div>
+      <div class="grid g3" style="margin-top:9px">
+        <div class="node k-tool" data-t="工艺机台区（9区）" data-d="光刻/刻蚀/薄膜/扩散注入/CMP/清洗/量测/AMHS/FMCS，各自独立VLAN与工业防火墙，默认互不可达。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">工艺机台网络</div><div class="nd">VLAN610-690</div></div></div>
+        <div class="node k-tool" data-t="AMHS 自动物料搬运" data-d="OHT天车、Stocker、AGV调度，独立高实时网络，与工艺网隔离。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">AMHS 物料系统</div><div class="nd">VLAN680</div></div></div>
+        <div class="node" data-t="FMCS 厂务监控" data-d="电力、特气、纯水、洁净室温湿度、废气与FFU，PLC/SCADA，Modbus/OPC UA。"><span class="ic"><svg><use href="#i-sensor" xlink:href="#i-sensor"/></svg></span><div><div class="nt">FMCS 厂务</div><div class="nd">VLAN690</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ===== 05 生产机台网 ===== -->
+<section class="block" id="ot">
+  <div class="sec-head ot"><h2>OT 生产机台网络详图（工艺区微隔离）</h2><span class="en">Equipment network · micro-segmentation</span></div>
+  <p class="lead">机台网络采用<b>“EAP → OT 汇聚 → 工艺区工业防火墙 → 工业接入交换机 → 机台”</b>四级结构。每个工艺区是独立 VLAN/子网，区与区之间<b>默认拒绝、白名单放行</b>，光刻/刻蚀等关键区没有通往其他区的直连路径。机台只与 EAP 经 <b>HSMS（SEMI E37，TCP 5000）/ GEM（E30）</b>通信，HSMS 本身无认证加密，安全完全依赖网络隔离。</p>
+  <div class="panel">
+    <!-- 通用结构 -->
+    <div class="zone z-ot">
+      <div class="zone-head"><span class="zt">机台网通用数据路径（以任一工艺区为例）</span></div>
+      <div class="hlink"><span class="hl"></span><span class="hlab">EAP（VLAN600）</span><span class="hl"></span><span class="hlab">OT 汇聚双机</span><span class="hl"></span><span class="hlab">工艺区工业防火墙</span><span class="hl"></span><span class="hlab">工业交换机环网</span><span class="hl"></span><span class="hlab">机台（固定IP）</span><span class="hl"></span></div>
+    </div>
+    <div class="grid g3" style="margin-top:12px">
+      <!-- 光刻 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">光刻 Lithography</span><span class="badge mono">VLAN610</span><span class="badge mono">10.10.61.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="ASML 光刻机（浸没式 NXT 系列）" data-d="核心光刻设备，SECS/GEM接入EAP，配方经RMS校验后下发，厂商维护走iDMZ堡垒机。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">ASML 光刻机</div><div class="ips">10.10.61.11 · :5000</div></div></div>
+          <div class="node k-tool" data-t="TEL 涂胶显影 Track" data-d="与光刻机联机，涂胶/显影，HSMS被动接入，独立Service维护口。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">TEL 涂胶显影</div><div class="ips">10.10.61.12</div></div></div>
+        </div>
+      </div>
+      <!-- 刻蚀 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">刻蚀 Etch</span><span class="badge mono">VLAN620</span><span class="badge mono">10.10.62.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="Lam Research 刻蚀机" data-d="介质/导体刻蚀，SECS/GEM事件上报，工艺配方白名单管控。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">Lam 刻蚀机</div><div class="ips">10.10.62.11</div></div></div>
+          <div class="node k-tool" data-t="中微 AMEC / TEL 刻蚀" data-d="国产刻蚀与TEL设备，固定IP接入，NAC准入。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">AMEC/TEL 刻蚀</div><div class="ips">10.10.62.12-13</div></div></div>
+        </div>
+      </div>
+      <!-- 薄膜 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">薄膜 CVD/PVD</span><span class="badge mono">VLAN630</span><span class="badge mono">10.10.63.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="Applied Materials PVD/CVD" data-d="物理/化学气相沉积，GEM状态采集，EDA Interface A数据采集。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">AMAT 薄膜设备</div><div class="ips">10.10.63.11</div></div></div>
+          <div class="node k-tool" data-t="ASM 原子层沉积 ALD" data-d="ALD薄膜，SECS接入，配方受控下发。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">ASM ALD</div><div class="ips">10.10.63.12</div></div></div>
+        </div>
+      </div>
+      <!-- 扩散注入 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">扩散 / 离子注入</span><span class="badge mono">VLAN640</span><span class="badge mono">10.10.64.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="扩散炉（管式炉）" data-d="高温扩散/氧化，多管炉控，PLC+SECS双接入。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">扩散炉</div><div class="ips">10.10.64.11</div></div></div>
+          <div class="node k-tool" data-t="Axcelis / AMAT 离子注入机" data-d="离子注入，剂量与配方严格管控，固定IP。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">离子注入机</div><div class="ips">10.10.64.12</div></div></div>
+        </div>
+      </div>
+      <!-- CMP -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">CMP 抛光</span><span class="badge mono">VLAN650</span><span class="badge mono">10.10.65.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="AMAT Reflexion / Ebara CMP" data-d="化学机械抛光，终点检测数据上送，SECS/GEM。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">CMP 抛光机</div><div class="ips">10.10.65.11</div></div></div>
+          <div class="node k-tool" data-t="CMP 后清洗" data-d="抛光后清洗联机，固定IP。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">CMP 清洗</div><div class="ips">10.10.65.12</div></div></div>
+        </div>
+      </div>
+      <!-- 清洗 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">清洗 Wet Clean</span><span class="badge mono">VLAN660</span><span class="badge mono">10.10.66.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="SCREEN(原DNS) 清洗机" data-d="湿法清洗，SECS/GEM，化学品槽位监控。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">SCREEN 清洗机</div><div class="ips">10.10.66.11</div></div></div>
+          <div class="node k-tool" data-t="TEL 单片清洗" data-d="单片式清洗，固定IP接入。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">TEL 清洗</div><div class="ips">10.10.66.12</div></div></div>
+        </div>
+      </div>
+      <!-- 量测 -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">量测 / 检测 Metrology</span><span class="badge mono">VLAN670</span><span class="badge mono">10.10.67.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="KLA 量测 / 缺陷检测" data-d="膜厚/CD量测与缺陷检测，数据进YMS，Interface A采集。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">KLA 量检测</div><div class="ips">10.10.67.11</div></div></div>
+          <div class="node k-tool" data-t="Hitachi 电镜 SEM/CD-SEM" data-d="扫描电镜/ Review，图像数据量大，独立QoS保障。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">Hitachi SEM</div><div class="ips">10.10.67.12</div></div></div>
+        </div>
+      </div>
+      <!-- AMHS -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">AMHS 自动物料</span><span class="badge mono">VLAN680</span><span class="badge mono">10.10.68.0/24</span></div>
+        <div class="grid">
+          <div class="node k-tool" data-t="Daifuku OHT 天车" data-d=" overhead 天车搬运，实时控制，低时延冗余环网，与工艺网隔离。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">OHT 天车</div><div class="ips">10.10.68.11</div></div></div>
+          <div class="node k-tool" data-t="Stocker / MCS 调度" data-d="晶圆存储库与物料控制系统，对接MES派工。"><span class="ic"><svg><use href="#i-tool" xlink:href="#i-tool"/></svg></span><div><div class="nt">Stocker/MCS</div><div class="ips">10.10.68.12</div></div></div>
+        </div>
+      </div>
+      <!-- FMCS -->
+      <div class="zone z-ot">
+        <div class="zone-head"><span class="zt">FMCS 厂务监控</span><span class="badge mono">VLAN690</span><span class="badge mono">10.10.69.0/24</span></div>
+        <div class="grid">
+          <div class="node" data-t="PLC / SCADA" data-d="电力、特气、纯水、废气、FFU与洁净室温湿度，Modbus TCP 502/OPC UA 4840。"><span class="ic"><svg><use href="#i-sensor" xlink:href="#i-sensor"/></svg></span><div><div class="nt">PLC/SCADA</div><div class="ips">10.10.69.11</div></div></div>
+          <div class="node" data-t="气体侦测 / 电表 / 传感器" data-d="现场仪表与传感器，经工业网关汇聚，告警联动。"><span class="ic"><svg><use href="#i-sensor" xlink:href="#i-sensor"/></svg></span><div><div class="nt">侦测/仪表</div><div class="ips">10.10.69.12-20</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 机台接入细节 -->
+    <div class="kv kv6">
+      <div class="k"><div class="t">寻址与准入</div><div class="v">固定 IP + NAC 白名单</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">静态或DHCP保留，MAC/802.1X认证，未知设备接入即隔离。</div></div>
+      <div class="k"><div class="t">通信协议</div><div class="v mono">HSMS :5000 / GEM</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">SEMI E37/E30，EDA Interface A(E147/E132)，由EAP发起连接。</div></div>
+      <div class="k"><div class="t">机台网口</div><div class="v">设备网 + Service 口</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">生产口接工艺网，维护口接iDMZ，物理/逻辑分离。</div></div>
+      <div class="k"><div class="t">时间与日志</div><div class="v">NTP 统一对时</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">UDP123对时保证事件可追溯，日志转发SIEM。</div></div>
+      <div class="k"><div class="t">工业交换机</div><div class="v">宽温冗余环网</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">Moxa/SCALANCE/Hirschmann，MRP/RSTP，洁净室适用。</div></div>
+      <div class="k"><div class="t">默认外联策略</div><div class="v">机台禁止主动外联</div><div class="nd" style="font-size:11.5px;color:var(--ink2);margin-top:3px">仅放行EAP、NTP与指定AV/补丁，其余默认拒绝。</div></div>
+    </div>
+    <div class="note"><b>设备厂商远程维护流程（强制）：</b>① 提交工单注明机台/原因/时段 → ② iDMZ 远程跳板 + 堡垒机双因子登入 → ③ 仅开放目标机台 Service 口、最小权限 → ④ 限时授权、全程录屏与命令审计 → ⑤ 会话结束自动回收账号并归档。禁止厂商直连机台生产口，禁止 Telnet（须 SSH/HTTPS，符合 SEMI E187）。</div>
+    </div>
+  </div>
+</section>
+<!-- ===== 06 办公 VDI ===== -->
+<section class="block" id="vdi">
+  <div class="sec-head"><h2>办公 VDI 桌面云架构（瘦终端 / 零终端）</h2><span class="en">Virtual Desktop Infrastructure</span></div>
+  <p class="lead">全公司办公与车间终端统一采用 <b>VDI 桌面云</b>：终端只负责显示与输入（无本地数据、无硬盘），桌面、数据与应用集中在数据中心运行，便于<b>统一镜像、补丁、防泄密与灾备</b>。终端经 <b>连接服务器（Connection Broker，HA）</b>分配桌面，AD 统一认证，关键场景双因子。</p>
+  <div class="panel">
+    <!-- 接入终端 -->
+    <div class="grid g3">
+      <div class="node k-vdi" data-t="办公区瘦终端" data-d="工位零终端，PoE供电，固定配置，802.1X准入，VLAN100。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">办公瘦终端</div><div class="ips">VLAN100 · 10.10.100.0</div></div></div>
+      <div class="node k-vdi" data-t="洁净室/车间零终端" data-d="车间看板与操作终端，防尘易消毒，固定账号登录生产池。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">车间零终端</div><div class="ips">VLAN100 · 专用SSID</div></div></div>
+      <div class="node k-vdi" data-t="远程 / 移动接入" data-d="经SSL VPN双因子后接入，BYOD仅作显示器，数据不落本地。"><span class="ic"><svg><use href="#i-lock" xlink:href="#i-lock"/></svg></span><div><div class="nt">SSL VPN 远程</div><div class="ips">VLAN300 → VDI</div></div></div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">连接服务器 Connection Broker（双机 HA + 负载均衡）· 443 · AD/双因子认证</span></div>
+
+    <!-- 桌面池 -->
+    <div class="grid g3">
+      <div class="zone z-it">
+        <div class="zone-head"><span class="zt">标准办公池</span><span class="badge mono">VLAN110</span><span class="badge mono">10.10.110.0/24</span></div>
+        <div class="grid">
+          <div class="node k-vdi" data-t="办公桌面池（浮动/克隆）" data-d="OA、邮件、网页、即时通讯，登录时分配，注销还原，USB只读，可经代理上网。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">通用办公桌面</div><div class="nd">外设：USB 只读</div><div class="ips">约 300 桌面</div></div></div>
+        </div>
+      </div>
+      <div class="zone z-it">
+        <div class="zone-head"><span class="zt">研发设计池</span><span class="badge mono">VLAN111</span><span class="badge mono">10.10.111.0/24</span></div>
+        <div class="grid">
+          <div class="node k-vdi" data-t="研发专用桌面（专属/高配置）" data-d="EDA、代码、PLM，GPU加速，禁USB/禁截屏/屏幕水印，Internet走代理审计。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">研发桌面（GPU）</div><div class="nd">禁外设 · 水印</div><div class="ips">约 120 桌面</div></div></div>
+        </div>
+      </div>
+      <div class="zone z-it">
+        <div class="zone-head"><span class="zt">生产车间池</span><span class="badge mono">VLAN112</span><span class="badge mono">10.10.112.0/24</span></div>
+        <div class="grid">
+          <div class="node k-vdi" data-t="车间/MES 操作桌面" data-d="MES/EAP看板与录入，固定账号、无外设，仅可达MES，不开放Internet。"><span class="ic"><svg><use href="#i-vdi" xlink:href="#i-vdi"/></svg></span><div><div class="nt">车间操作桌面</div><div class="nd">仅访问 MES</div><div class="ips">约 80 桌面</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bus"><div class="vline"></div><span class="blab">虚拟化计算集群 · 共享存储 · 镜像/模板管理 · 配置文件与文件服务器</span></div>
+
+    <!-- 后端 -->
+    <div class="grid g4">
+      <div class="node k-srv" data-t="虚拟化计算集群" data-d="服务器虚拟化承载桌面VM，DRS高可用，节点故障自动迁移。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">计算集群</div><div class="ips">VLAN220</div></div></div>
+      <div class="node k-srv" data-t="共享存储 / 分布式存储" data-d="存放桌面镜像与数据，SSD加速，快照备份到DR。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">共享存储</div><div class="ips">存储网 10.10.220</div></div></div>
+      <div class="node k-srv" data-t="镜像 / 应用管理" data-d="统一模板、应用分层与版本管理，补丁统一发布。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">镜像/App 管理</div><div class="ips">VLAN210</div></div></div>
+      <div class="node k-srv" data-t="AD / 文件 / 漫游配置" data-d="AD身份、漫游配置与个人/部门文件，按权限与配额管理。"><span class="ic"><svg><use href="#i-srv" xlink:href="#i-srv"/></svg></span><div><div class="nt">AD/文件服务</div><div class="ips">VLAN200</div></div></div>
+    </div>
+    <div class="note"><b>访问路径（受防火墙控制）：</b>终端 → 连接服务器(:443) → 桌面池 VM；办公池经内部防火墙访问 ERP/OA（443），研发池受控访问 PLM/代码库，生产池仅放通 MES。<b>防泄密：</b>分池策略、外设管控、屏幕水印、禁截屏/剪贴板单向、全程行为审计；终端损坏不丢失任何数据。</div>
+  </div>
+</section>
+<!-- ===== 07 防火墙策略 ===== -->
+<section class="block" id="fw">
+  <div class="sec-head sec"><h2>防火墙分层与访问控制策略矩阵</h2><span class="en">Firewall layers &amp; policy matrix</span></div>
+  <p class="lead">全网共 <b>5 道防火墙/网闸</b>，遵循<b>默认拒绝、最小放行、白名单</b>原则。FW1 边界 NGFW 防南北向；FW2 内部防火墙分 IT 域；FW3/FW4 夹住 iDMZ 做 IT-OT 隔离（可网闸单向）；FW5 工艺区工业防火墙做微隔离。下表为关键策略（可按位置与动作筛选）。</p>
+  <div class="panel">
+    <div class="grid g5" style="margin-bottom:16px">
+      <div class="node k-fw" data-t="FW1 边界 NGFW" data-d="互联网边界，HA，IPS/AV/URL/NAT。"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">FW1 边界</div></div></div>
+      <div class="node k-fw" data-t="FW2 内部防火墙" data-d="IT办公/VDI与服务器区之间。"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">FW2 内部</div></div></div>
+      <div class="node k-fw" data-t="FW3 FW-IT" data-d="IT 到 iDMZ，协议感知。"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">FW3 IT侧</div></div></div>
+      <div class="node k-fw" data-t="FW4 FW-OT" data-d="iDMZ 到 OT，可单向网闸。"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">FW4 OT侧</div></div></div>
+      <div class="node k-fw" data-t="FW5 工艺区工业防火墙" data-d="各工艺区之间微隔离，SECS函数级。"><span class="ic"><svg><use href="#i-fw" xlink:href="#i-fw"/></svg></span><div><div class="nt">FW5 微隔离</div></div></div>
+    </div>
+
+    <div class="tbl-tools">
+      <input class="search" id="fw-search" placeholder="搜索源域/目的域/端口…">
+      <select class="f" id="fw-loc"><option value="">全部防火墙位置</option><option>FW1 边界</option><option>FW2 内部</option><option>FW3 IT侧</option><option>FW4 OT侧</option><option>FW5 微隔离</option></select>
+      <select class="f" id="fw-act"><option value="">全部动作</option><option>允许</option><option>单向</option><option>拒绝</option></select>
+    </div>
+    <div class="tbl-wrap">
+      <table id="fw-table" style="table-layout:fixed">
+        <colgroup><col style="width:7%"><col style="width:12%"><col style="width:17%"><col style="width:19%"><col style="width:16%"><col style="width:9%"><col style="width:20%"></colgroup>
+        <thead><tr><th>#</th><th>位置</th><th>源域</th><th>目的域</th><th>协议/端口</th><th>动作</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr data-loc="FW1 边界" data-act="允许"><td class="mono">1</td><td>FW1 边界</td><td>办公池</td><td>互联网</td><td class="mono">TCP 80/443</td><td><span class="pill allow">允许</span></td><td>经代理+内容过滤</td></tr>
+          <tr data-loc="FW1 边界" data-act="拒绝"><td class="mono">2</td><td>FW1 边界</td><td>互联网</td><td>内网任意</td><td class="mono">any</td><td><span class="pill deny">拒绝</span></td><td>入站默认拒绝，仅DMZ发布</td></tr>
+          <tr data-loc="FW1 边界" data-act="允许"><td class="mono">3</td><td>FW1 边界</td><td>SSL VPN</td><td>VDI 连接服务器</td><td class="mono">TCP 443</td><td><span class="pill allow">允许</span></td><td>双因子，仅可达VDI</td></tr>
+          <tr data-loc="FW2 内部" data-act="允许"><td class="mono">4</td><td>FW2 内部</td><td>办公池</td><td>ERP/OA/邮件</td><td class="mono">TCP 443</td><td><span class="pill allow">允许</span></td><td>按AD组授权</td></tr>
+          <tr data-loc="FW2 内部" data-act="允许"><td class="mono">5</td><td>FW2 内部</td><td>研发池</td><td>PLM/代码库</td><td class="mono">TCP 443</td><td><span class="pill allow">允许</span></td><td>禁USB/水印</td></tr>
+          <tr data-loc="FW2 内部" data-act="允许"><td class="mono">6</td><td>FW2 内部</td><td>运维(堡垒机)</td><td>服务器/网络设备</td><td class="mono">22/3389</td><td><span class="pill allow">允许</span></td><td>必须经堡垒机跳转</td></tr>
+          <tr data-loc="FW3 IT侧" data-act="允许"><td class="mono">7</td><td>FW3 IT侧</td><td>IT 域</td><td>iDMZ Historian</td><td class="mono">443/1433</td><td><span class="pill allow">允许</span></td><td>只读报表，不可反向</td></tr>
+          <tr data-loc="FW4 OT侧" data-act="单向"><td class="mono">8</td><td>FW4 OT侧</td><td>iDMZ</td><td>OT MES/EAP</td><td class="mono">应用代理</td><td><span class="pill oneway">单向</span></td><td>数据受控，网闸可物理单向</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="允许"><td class="mono">9</td><td>FW5 微隔离</td><td>EAP</td><td>全部机台</td><td class="mono">TCP 5000</td><td><span class="pill allow">允许</span></td><td>HSMS，设备白名单</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="允许"><td class="mono">10</td><td>FW5 微隔离</td><td>机台</td><td>EAP</td><td class="mono">TCP 5000</td><td><span class="pill allow">允许</span></td><td>仅已建立会话应答</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="允许"><td class="mono">11</td><td>FW5 微隔离</td><td>机台</td><td>NTP 服务器</td><td class="mono">UDP 123</td><td><span class="pill allow">允许</span></td><td>统一对时</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="拒绝"><td class="mono">12</td><td>FW5 微隔离</td><td>机台</td><td>其他任意</td><td class="mono">any</td><td><span class="pill deny">拒绝</span></td><td>禁止主动外联</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="拒绝"><td class="mono">13</td><td>FW5 微隔离</td><td>工艺区 A</td><td>工艺区 B</td><td class="mono">any</td><td><span class="pill deny">拒绝</span></td><td>区间默认不可达</td></tr>
+          <tr data-loc="FW4 OT侧" data-act="允许"><td class="mono">14</td><td>FW4 OT侧</td><td>厂商跳板</td><td>指定机台 Service 口</td><td class="mono">SSH/HTTPS</td><td><span class="pill allow">允许</span></td><td>限时、录屏、审计</td></tr>
+          <tr data-loc="FW5 微隔离" data-act="允许"><td class="mono">15</td><td>FW5 微隔离</td><td>FMCS</td><td>PLC/仪表</td><td class="mono">502/4840</td><td><span class="pill allow">允许</span></td><td>Modbus/OPC UA</td></tr>
+          <tr data-loc="FW2 内部" data-act="允许"><td class="mono">16</td><td>FW2 内部</td><td>全网设备</td><td>SIEM</td><td class="mono">UDP 514</td><td><span class="pill allow">允许</span></td><td>Syslog 日志汇聚</td></tr>
+          <tr data-loc="FW2 内部" data-act="拒绝"><td class="mono">17</td><td>FW2 内部</td><td>业务域</td><td>OOB 带外管理</td><td class="mono">any</td><td><span class="pill deny">拒绝</span></td><td>OOB 仅管理终端可达</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- ===== 08 网段规划 ===== -->
+<section class="block" id="ip">
+  <div class="sec-head"><h2>IP / VLAN 网段规划明细</h2><span class="en">Addressing &amp; VLAN plan</span></div>
+  <p class="lead">以 <b class="mono">10.0.0.0/8</b> 为企业私有地址空间，<b>按站点分配 /16</b>（第三字节对应业务/VLAN 编号），各站点网段互不冲突、可整体汇总路由；骨干互联用 <b class="mono">10.255.0.0/16</b>。服务器与机台用静态地址，终端用 DHCP，公网地址由 ISP 分配并经 NAT 映射。</p>
+
+  <h4 style="font-size:14px;margin:6px 0 10px">表 1 · 集团站点网段总表</h4>
+  <div class="tbl-wrap" style="margin-bottom:26px">
+    <table style="table-layout:fixed">
+      <colgroup><col style="width:24%"><col style="width:10%"><col style="width:20%"><col style="width:26%"><col style="width:20%"></colgroup>
+      <thead><tr><th>站点</th><th>代码</th><th>主网段</th><th>主要业务</th><th>广域接入</th></tr></thead>
+      <tbody>
+        <tr><td>总部晶圆一厂（合肥）</td><td class="mono">HQ-F1</td><td class="mono">10.10.0.0/16</td><td>晶圆制造、数据中心、集团VDI</td><td>MPLS+SD-WAN+DCI</td></tr>
+        <tr><td>晶圆二厂</td><td class="mono">F2</td><td class="mono">10.20.0.0/16</td><td>晶圆制造</td><td>MPLS+SD-WAN</td></tr>
+        <tr><td>封测子公司（无锡）</td><td class="mono">OSAT</td><td class="mono">10.30.0.0/16</td><td>封装、测试、仓储</td><td>MPLS+SD-WAN</td></tr>
+        <tr><td>IC 设计子公司（上海）</td><td class="mono">DSN</td><td class="mono">10.40.0.0/16</td><td>EDA、设计、仿真</td><td>SD-WAN</td></tr>
+        <tr><td>海外子公司（日本/美国）</td><td class="mono">OVS</td><td class="mono">10.50.0.0/16</td><td>销售、FAE</td><td>SD-WAN</td></tr>
+        <tr><td>异地灾备中心</td><td class="mono">DR</td><td class="mono">10.99.0.0/16</td><td>备份、容灾</td><td>DCI+MPLS</td></tr>
+        <tr><td>骨干互联/传输</td><td class="mono">WAN</td><td class="mono">10.255.0.0/16</td><td>站点 /30 互联、Loopback</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="font-size:14px;margin:6px 0 10px">表 2 · 总部 Fab1 详细 VLAN / 子网（网关均为对应网段 .1）</h4>
+  <div class="tbl-tools">
+    <input class="search" id="ip-search" placeholder="搜索 VLAN / 用途 / 网段…">
+  </div>
+  <div class="tbl-wrap">
+    <table id="ip-table" style="table-layout:fixed">
+      <colgroup><col style="width:11%"><col style="width:24%"><col style="width:22%"><col style="width:15%"><col style="width:12%"><col style="width:16%"></colgroup>
+      <thead><tr><th>VLAN</th><th>用途</th><th>网段</th><th>网关</th><th>寻址</th><th>安全域</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">100</td><td>瘦/零终端接入</td><td class="mono">10.10.100.0/24</td><td class="mono">.1</td><td>静态保留</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">110</td><td>办公桌面池</td><td class="mono">10.10.110.0/24</td><td class="mono">.1</td><td>静态(VM)</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">111</td><td>研发桌面池</td><td class="mono">10.10.111.0/24</td><td class="mono">.1</td><td>静态(VM)</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">112</td><td>生产车间桌面池</td><td class="mono">10.10.112.0/24</td><td class="mono">.1</td><td>静态(VM)</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">120</td><td>物理PC/打印/会议</td><td class="mono">10.10.120.0/24</td><td class="mono">.1</td><td>DHCP</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">130</td><td>办公无线</td><td class="mono">10.10.130.0/24</td><td class="mono">.1</td><td>DHCP</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">200</td><td>企业服务器 ERP/OA/PLM</td><td class="mono">10.10.200.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">210</td><td>VDI 基础架构</td><td class="mono">10.10.210.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">220</td><td>虚拟化/存储/迁移</td><td class="mono">10.10.220.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--it);font-weight:700">IT</td></tr>
+        <tr><td class="mono">300</td><td>DMZ 隔离区</td><td class="mono">10.10.30.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--dmz);font-weight:700">DMZ</td></tr>
+        <tr><td class="mono">400</td><td>安全 SOC</td><td class="mono">10.10.40.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--sec);font-weight:700">安全</td></tr>
+        <tr><td class="mono">500</td><td>工业 iDMZ</td><td class="mono">10.10.50.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--idmz);font-weight:700">iDMZ</td></tr>
+        <tr><td class="mono">600</td><td>MES / EAP 核心</td><td class="mono">10.10.60.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">610</td><td>光刻</td><td class="mono">10.10.61.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">620</td><td>刻蚀</td><td class="mono">10.10.62.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">630</td><td>薄膜 CVD/PVD</td><td class="mono">10.10.63.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">640</td><td>扩散/离子注入</td><td class="mono">10.10.64.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">650</td><td>CMP 抛光</td><td class="mono">10.10.65.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">660</td><td>清洗</td><td class="mono">10.10.66.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">670</td><td>量测/检测</td><td class="mono">10.10.67.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">680</td><td>AMHS 物料</td><td class="mono">10.10.68.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">690</td><td>FMCS 厂务</td><td class="mono">10.10.69.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--ot);font-weight:700">OT</td></tr>
+        <tr><td class="mono">999</td><td>带外管理 OOB</td><td class="mono">10.10.255.0/24</td><td class="mono">.1</td><td>静态</td><td style="color:var(--mgmt);font-weight:700">管理</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>扩容与合规：</b>每个 /16 预留约 250 个 /24，新增站点在 10.60~10.90 等空闲段分配；关键网段（MES、iDMZ、SOC）独立物理/虚拟防火墙并接入 SIEM 审计，整体满足等保 2.0 三级与 IEC 62443、SEMI E187 的分域要求。</div>
+</section>
+</main>
+
+<footer>
+  本图为教学/规划用途的示例架构，企业名称、设备型号、IP 与 VLAN 均为演示数据，落地前需结合实际厂区、合规等保与 SEMI 标准复核。
+</footer>
+
+<!-- 详情弹层 -->
+<div id="detail">
+  <button class="x" onclick="closeDetail()" aria-label="关闭">×</button>
+  <h5 id="d-title"></h5>
+  <div class="dl" id="d-body"></div>
+  <div class="row" id="d-tags"></div>
+</div>
+
+<script>
+/* ===== 设备详情弹层 ===== */
+var detail=document.getElementById('detail');
+function openDetail(el){
+  document.getElementById('d-title').textContent=el.dataset.t||'';
+  document.getElementById('d-body').innerHTML=el.dataset.d||'';
+  var tags=document.getElementById('d-tags');
+  tags.innerHTML='';
+  if(el.dataset.ip){el.dataset.ip.split('/').forEach(function(v){if(v.trim()){var s=document.createElement('span');s.className='mono';s.textContent=v.trim();tags.appendChild(s);}});}
+  detail.classList.add('show');
+}
+function closeDetail(){detail.classList.remove('show');}
+document.addEventListener('click',function(e){
+  var n=e.target.closest('.node');
+  if(n && n.dataset.t){openDetail(n);}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDetail();});
+
+/* ===== 防火墙矩阵筛选 ===== */
+var fwRows=[].slice.call(document.querySelectorAll('#fw-table tbody tr'));
+function filterFW(){
+  var q=document.getElementById('fw-search').value.trim().toLowerCase();
+  var loc=document.getElementById('fw-loc').value;
+  var act=document.getElementById('fw-act').value;
+  fwRows.forEach(function(r){
+    var txt=r.textContent.toLowerCase();
+    var ok=(!q||txt.indexOf(q)>-1) && (!loc||r.dataset.loc===loc) && (!act||r.dataset.act===act);
+    r.style.display=ok?'':'none';
+  });
+}
+['fw-search','fw-loc','fw-act'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',filterFW);
+  document.getElementById(id).addEventListener('change',filterFW);
+});
+
+/* ===== 网段表搜索 ===== */
+var ipRows=[].slice.call(document.querySelectorAll('#ip-table tbody tr'));
+document.getElementById('ip-search').addEventListener('input',function(){
+  var q=this.value.trim().toLowerCase();
+  ipRows.forEach(function(r){r.style.display=(!q||r.textContent.toLowerCase().indexOf(q)>-1)?'':'none';});
+});
+
+/* ===== 导航高亮当前区块 ===== */
+var navLinks=[].slice.call(document.querySelectorAll('.nav a'));
+var secs=navLinks.map(function(a){return document.querySelector(a.getAttribute('href'));});
+window.addEventListener('scroll',function(){
+  var pos=window.scrollY+120,current=0;
+  secs.forEach(function(s,i){if(s&&s.offsetTop<=pos)current=i;});
+  navLinks.forEach(function(a,i){a.style.background=i===current?'var(--it-bg)':'';a.style.color=i===current?'var(--it)':'';});
+},{passive:true});
+</script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>半导体 IDM 网络交互全览图 · 一次连接的旅程</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%232563eb' d='M12 2 2 7v10l10 5 10-5V7z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#edf1f6; --panel:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#d5dde8;
+  --it:#2563eb; --itbg:#e8f0fe; --dmz:#0e8fa8; --dmzbg:#e2f4f7; --idmz:#7c3aed; --idmzbg:#f1eafe;
+  --ot:#d97706; --otbg:#fdf0dd; --sec:#dc2626; --secbg:#fdeaea; --mgmt:#475569; --mgmtbg:#eef1f5;
+  --ext:#334155; --ok:#16a34a; --deny:#dc2626;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1480px;margin:0 auto;padding:0 22px 60px}
+
+/* ===== 顶部 ===== */
+header.top{background:linear-gradient(135deg,#0b1f3a 0%,#123a66 55%,#1d4e89 100%);color:#fff;padding:30px 0 26px;margin-bottom:24px;position:relative;overflow:hidden}
+header.top::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:34px 34px;pointer-events:none}
+.top .wrap{padding-bottom:0;margin-bottom:0}
+.eyebrow{font-size:12px;letter-spacing:.22em;color:#9cc2f0;font-weight:500;text-transform:uppercase;margin-bottom:10px}
+h1{font-size:clamp(22px,3vw,32px);font-weight:900;letter-spacing:.01em}
+.lead{color:#c6d8ee;margin-top:8px;max-width:920px;font-size:14px}
+.lead b{color:#fff}
+
+/* ===== 接入方式切换 ===== */
+.access{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0 14px}
+.access-card{border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;gap:13px;align-items:flex-start;transition:.18s;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.access-card:hover{transform:translateY(-1px);border-color:#94a3b8}
+.access-card .ac-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.access-card .ac-ic svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:1.8}
+.access-card .ac-t{font-size:14.5px;font-weight:700}
+.access-card .ac-d{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.access-card.active{border-color:var(--it);box-shadow:var(--shadow)}
+.access-card[data-id="wan"].active{border-color:var(--it)}
+.access-card[data-id="lan"].active{border-color:var(--ot)}
+.access-card .ac-ic.wan{background:var(--it)}
+.access-card .ac-ic.lan{background:var(--ot)}
+
+/* ===== 目标场景选择 ===== */
+.scenarios{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.scenario{border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 16px;cursor:pointer;font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink);display:flex;align-items:center;gap:9px;transition:.18s;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.scenario .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.scenario:hover{border-color:#94a3b8;transform:translateY(-1px)}
+.scenario.active{border-color:var(--it);background:var(--itbg);color:#1d4ed8;box-shadow:var(--shadow)}
+.scenario[data-tone="deny"].active{border-color:var(--deny);background:var(--secbg);color:#b91c1c}
+
+/* ===== 主布局 ===== */
+.board{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+.map-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.map-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.map-head h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.tag{font-family:var(--mono);font-size:11px;background:var(--mgmtbg);color:var(--mgmt);padding:3px 8px;border-radius:6px;font-weight:500}
+.svgbox{padding:10px;line-height:0}
+svg#topo{width:100%;height:auto;display:block;font-family:var(--sans)}
+
+/* ===== 控制条 ===== */
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:7px 13px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.btn:hover{border-color:var(--it);color:var(--it)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--it);border-color:var(--it);color:#fff}
+.btn.primary:hover{background:#1d4ed8;color:#fff}
+.btn svg{width:15px;height:15px;fill:currentColor}
+.progress{flex:1 1 140px;min-width:120px;height:7px;background:var(--line);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--it),#60a5fa);border-radius:99px;width:0;transition:width .35s ease}
+.stepno{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* ===== 右侧面板 ===== */
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.panel-h{padding:13px 16px;border-bottom:1px solid var(--line);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.panel-b{padding:16px}
+.journey-step{font-family:var(--mono);font-size:11px;color:var(--it);font-weight:700;letter-spacing:.05em}
+.journey-title{font-size:16px;font-weight:700;margin:4px 0 6px}
+.journey-desc{font-size:13px;color:#334155;margin-bottom:12px}
+.five{background:#0f1f3a;border-radius:10px;padding:12px 13px;font-family:var(--mono);font-size:11.5px;color:#cfe0f5;line-height:1.7;overflow-x:auto}
+.five .k{color:#7fa8d6}
+.five .arrow{color:#fbbf24}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;margin:0 6px 6px 0}
+.chip.allow{background:#e7f6ec;color:#15803d}
+.chip.deny{background:var(--secbg);color:#b91c1c}
+.chip.oneway{background:#fef3e2;color:#b45309}
+.chip.enc{background:#eef2ff;color:#4338ca}
+.kv{display:grid;grid-template-columns:88px 1fr;gap:7px 10px;font-size:12.5px;margin-top:6px}
+.kv dt{color:var(--muted)}
+.kv dd{font-weight:500;word-break:break-all}
+.kv dd.mono{font-family:var(--mono);font-size:11.5px}
+.hintbox{font-size:12px;color:var(--muted);background:var(--mgmtbg);border-radius:9px;padding:10px 12px;line-height:1.6}
+.hintbox b{color:var(--ink)}
+
+/* ===== 图例 ===== */
+.legend{display:flex;flex-wrap:wrap;gap:14px 20px;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#334155}
+.legend .li{display:flex;align-items:center;gap:7px}
+.legend .sw{width:14px;height:14px;border-radius:4px;flex:none}
+.legend .ln{width:26px;height:0;border-top:3px solid var(--mgmt)}
+.legend .ln.dash{border-top:2.5px dashed var(--deny)}
+
+/* ===== SVG 动态元素样式 ===== */
+.zone-rect{stroke-width:1.5;rx:11}
+.node{cursor:pointer}
+.node .card{stroke-width:1.6;rx:10;transition:.2s}
+.node .nlabel{font-size:13.5px;font-weight:700;fill:#0f172a}
+.node .nsub{font-size:10.5px;fill:#64748b;font-family:var(--mono)}
+.node .nicon{fill:none;stroke-width:1.7}
+.dim{opacity:.18;transition:opacity .4s}
+.edge{fill:none;transition:stroke-width .15s,opacity .3s}
+.edge-hit{stroke:transparent;stroke-width:18;stroke-linecap:round;cursor:pointer}
+.edge-visible{stroke-width:2.4;stroke-linecap:round;cursor:pointer}
+.edge-visible:hover{stroke-width:4}
+.edge-visible.flow{stroke-dasharray:9 7;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-16}}
+.edge-visible.dim{opacity:.12}
+.edge-visible.selected{stroke-width:4.5;filter:drop-shadow(0 0 5px rgba(37,99,235,.45))}
+.packet{fill:#fbbf24;stroke:#fff;stroke-width:1.5;filter:drop-shadow(0 0 6px rgba(251,191,36,.8))}
+.zone-title{font-size:12px;font-weight:700;letter-spacing:.04em}
+.badge-x{fill:#dc2626}
+.badge-check{fill:#16a34a}
+
+/* ===== tooltip ===== */
+#tip{position:fixed;z-index:99;pointer-events:none;background:#0f1f3a;color:#e6f0fb;border-radius:10px;padding:10px 12px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:270px;opacity:0;transition:opacity .12s;line-height:1.6}
+#tip.show{opacity:1}
+#tip .tt{font-weight:700;font-size:13px;color:#fff;margin-bottom:3px}
+#tip .tm{font-family:var(--mono);font-size:10.5px;color:#9cc2f0}
+#tip .ta{margin-top:5px;font-weight:600}
+#tip .ta.a{color:#4ade80}#tip .ta.d{color:#f87171}
+
+/* ===== 响应式 ===== */
+@media(max-width:1080px){.board{grid-template-columns:1fr}.side{position:static;order:2}}
+@media(max-width:560px){
+  .wrap{padding:0 13px 40px}
+  .access{grid-template-columns:1fr}
+  .scenario{flex:1 1 100%}
+  .btn{padding:8px 11px}
+  .kv{grid-template-columns:78px 1fr}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="eyebrow">PACKET JOURNEY · INTERACTIVE NETWORK MAP</div>
+  <h1>半导体 IDM 网络交互全览图 · 一次连接的旅程</h1>
+  <p class="lead">以 <b>内网 VDI（本地瘦终端）与外网 VDI（远程 SSL VPN）</b>两种接入为例，看一个会话如何逐跳穿过接入层、边界防火墙、DMZ 与核心交换，最终进入各网段。点击任意流向查看连接信息，悬停快速预览，用播放键把复杂网络<b>一步步肢解</b>。</p>
+</div></header>
+
+<div class="wrap">
+  <!-- 接入方式切换（内网 VDI / 外网 VDI） -->
+  <div class="access" id="access"></div>
+  <!-- 目标场景按钮由 JS 生成 -->
+  <div class="scenarios" id="scenarios"></div>
+
+  <div class="board">
+    <!-- 拓扑图 -->
+    <div class="map-card">
+      <div class="map-head">
+        <h2>华芯半导体 · Fab1 全览拓扑 <span class="tag">逻辑视图 · 示例数据</span></h2>
+        <div class="controls">
+          <button class="btn" id="prev" type="button"><svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6z"/></svg>上一步</button>
+          <button class="btn primary" id="play" type="button"><svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg><span id="playTxt">播放</span></button>
+          <button class="btn" id="next" type="button">下一步<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6z"/></svg></button>
+          <button class="btn" id="reset" type="button"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 7l5 5V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg>重置</button>
+          <div class="progress"><i id="bar"></i></div>
+          <span class="stepno" id="stepno">0 / 0</span>
+        </div>
+      </div>
+      <div class="svgbox"><svg id="topo" viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- 右侧：旅程 / 详情 -->
+    <div class="side">
+      <div class="panel">
+        <div class="panel-h">当前步骤</div>
+        <div class="panel-b" id="journey"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">连接 / 设备详情</div>
+        <div class="panel-b" id="detail"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+/* ================= 配色（按安全域） ================= */
+var ZONES = {
+  ext:  {fill:'#eef1f5', stroke:'#334155', name:'外部网络'},
+  sec:  {fill:'#fdeaea', stroke:'#dc2626', name:'安全/SOC'},
+  dmz:  {fill:'#e2f4f7', stroke:'#0e8fa8', name:'DMZ'},
+  mgmt: {fill:'#eef1f5', stroke:'#475569', name:'管理/基础设施'},
+  it:   {fill:'#e8f0fe', stroke:'#2563eb', name:'IT 办公/VDI'},
+  idmz: {fill:'#f1eafe', stroke:'#7c3aed', name:'工业 iDMZ'},
+  ot:   {fill:'#fdf0dd', stroke:'#d97706', name:'OT 生产'}
+};
+
+/* ================= 线性图标（24x24，stroke） ================= */
+var ICONS = {
+  vdi:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/>',
+  cloud:'<path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 9.5a3.5 3.5 0 0 1 0 7H7z"/>',
+  fw:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 10h16M4 14h16"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  shield:'<path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+  switch:'<rect x="3" y="8" width="18" height="8" rx="1.5"/><path d="M7 12h.01M11 12h.01M15 12h.01"/>',
+  desktop:'<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>',
+  server:'<rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/>',
+  tool:'<path d="M14.5 5.5a3.5 3.5 0 0 0-4.7 4.2L4 15.5 8.5 20l5.8-5.8a3.5 3.5 0 0 0 4.2-4.7l-2.3 2.3-2.1-2.1z"/>'
+};
+
+/* ================= 节点（含坐标 / 角色 / 详情） ================= */
+var NODES = [
+ {id:'vdi',     x:490, y:28,  w:220, h:68, zone:'ext',  icon:'vdi',    name:'外网 VDI 终端', sub:'员工笔记本 · 公网 222.68.10.21',
+  role:'起点：公司内网外的远程终端，运行 VDI/SSL VPN 客户端，无本地数据。'},
+ {id:'net',     x:470, y:148, w:260, h:62, zone:'ext',  icon:'cloud',  name:'互联网', sub:'不可信公网 · 仅 443 出站',
+  role:'公共网络，承载加密后的 HTTPS 流量，中间设备无法读取内容。'},
+ {id:'fw1',     x:478, y:268, w:244, h:68, zone:'sec',  icon:'fw',     name:'边界 NGFW（主备 HA）', sub:'FW1 · IPS/AV/NAT · 202.108.22.40',
+  role:'南北向第一道边界，三区域(Outside/DMZ/Inside)，入站默认拒绝，做 NAT、入侵防御与 SSL 解密检查。'},
+ {id:'dmzbox',  x:110, y:386, w:980, h:116, zone:'dmz', box:true, name:'DMZ 隔离区', sub:'VLAN300 · 10.10.30.0/24'},
+ {id:'sslvpn',  x:140, y:416, w:280, h:58, zone:'dmz',  icon:'lock',  name:'SSL VPN 网关', sub:'10.10.30.14:443',
+  role:'终结加密隧道，校验账号密码 + 动态令牌，通过后分配 VPN 虚拟地址 10.10.30.201。'},
+ {id:'broker',  x:460, y:416, w:280, h:58, zone:'dmz',  icon:'server',name:'VDI 连接服务器 Broker', sub:'10.10.210.10 · 双机 HA',
+  role:'连接代理，按 AD 组与负载分配桌面池 VM，远程用户只可经此进入 VDI。'},
+ {id:'waf',     x:780, y:416, w:280, h:58, zone:'dmz',  icon:'shield',name:'WAF / 对外门户', sub:'10.10.30.11 · 反向代理',
+  role:'Web 应用防火墙，保护对外发布的应用，本会话中为旁路设备。'},
+ {id:'invdi',   x:24,  y:560, w:176, h:68, zone:'it',   icon:'vdi',    name:'内网 VDI 瘦终端', sub:'VLAN100 · 10.10.100.11',
+  role:'本地办公 / 车间零终端，无硬盘、无本地数据，只负责显示与输入，桌面与应用集中在数据中心。'},
+ {id:'accesssw',x:236, y:560, w:150, h:68, zone:'mgmt', icon:'switch', name:'接入交换机', sub:'PoE · 802.1X · Trunk',
+  role:'终端接入层，做 MAC/802.1X 认证与 VLAN 划分，未知设备接入即隔离，双上联到核心。'},
+ {id:'core',    x:470, y:560, w:260, h:68, zone:'mgmt', icon:'switch',name:'核心交换机 Core（双机）', sub:'L3 网关 · OSPF/VRRP · VLAN',
+  role:'全网三层网关与路由中枢，内网与外网两条接入路径在此汇合，按 VLAN 转发到各安全域，双机 VRRP 高可用。'},
+ {id:'itzone',  x:60,  y:712, w:330, h:86, zone:'it',   icon:'desktop',name:'IT 办公 / VDI 域', sub:'VLAN100/110/120/130 · 10.10.110.0',
+  role:'办公、研发、车间桌面池与瘦终端所在域，桌面在此呈现，按 AD 组授权。'},
+ {id:'srvzone', x:435, y:712, w:330, h:86, zone:'it',   icon:'server', name:'企业服务器区', sub:'VLAN200 · ERP/OA/PLM 10.10.200.11',
+  role:'SAP ERP、OA、PLM、AD/DNS 集中区，仅接受内网桌面经 FW2 的授权访问。'},
+ {id:'idmz',    x:810, y:712, w:330, h:86, zone:'idmz', icon:'lock',  name:'工业 iDMZ（FW3）', sub:'VLAN500 · 10.10.50.0 · 双宿主缓冲',
+  role:'IT 与 OT 之间的缓冲，含 Historian、补丁仓、远程跳板、协议网关，禁止反向连接。'},
+ {id:'soc',     x:60,  y:892, w:330, h:86, zone:'sec',  icon:'shield',name:'安全 SOC / SIEM', sub:'VLAN400 · 10.10.40.11',
+  role:'集中日志、审计与监测，接收全网 Syslog(514)，旁路运行不参与业务转发。'},
+ {id:'meszone', x:435, y:892, w:330, h:86, zone:'ot',   icon:'server', name:'OT · MES / EAP', sub:'VLAN600 · 10.10.60.11/.21',
+  role:'制造执行与设备通讯核心，EAP 经 HSMS 统一管理机台，IT 只能经应用代理获取受控数据。'},
+ {id:'toolzone',x:810, y:892, w:330, h:86, zone:'ot',   icon:'tool',  name:'工艺机台区（FW5）', sub:'VLAN610-690 · ASML 10.10.61.11:5000',
+  role:'9 大工艺区微隔离，机台固定 IP、白名单通信，仅 EAP 可经 HSMS(5000) 访问，区间默认拒绝。'},
+ {id:'oob',     x:435, y:1072,w:330, h:72, zone:'mgmt', icon:'lock',  name:'带外管理 OOB', sub:'VLAN999 · 10.10.255.0 · 物理独立',
+  role:'Console/iDRAC/IPMI 管理网，仅专用管理终端可达，业务域默认不可达。'}
+];
+
+/* ================= 流向（链路 / 连接信息） ================= */
+var EDGES = [
+ {id:'e1', d:'M600,96 L600,146', from:'vdi', to:'net', label:'HTTPS',
+  src:'222.68.10.21:51432', dst:'202.108.22.40:443', proto:'TCP / TLS 1.3', action:'allow', enc:'TLS 1.3 加密', fw:'公网传输', policy:'—',
+  title:'① 发出加密连接请求',
+  desc:'VDI 客户端把会话封装成发往公司公网地址的 HTTPS 请求。公网全程 TLS 加密，任何中间设备只能看到目的 443 端口，读不到内容。'},
+ {id:'e2', d:'M600,210 L600,266', from:'net', to:'fw1', label:'NAT 443',
+  src:'222.68.10.21:51432', dst:'10.10.30.14:443', proto:'TCP / TLS 1.3', action:'allow', enc:'TLS 1.3', fw:'FW1 边界', policy:'策略 #3',
+  title:'② 抵达边界 NGFW，首道检查',
+  desc:'FW1 先做 IPS 入侵防御与杀毒检测，再做目的地址 NAT，把公网地址映射到 DMZ 的 SSL VPN 网关。入站默认拒绝，仅放行 443 到指定主机。'},
+ {id:'e3', d:'M600,336 L600,414', from:'fw1', to:'broker', label:'双因子',
+  src:'10.10.30.201:51432', dst:'10.10.30.14:443', proto:'TCP / TLS 1.3', action:'allow', enc:'TLS 1.3', fw:'FW1 / DMZ', policy:'策略 #3',
+  title:'③ DMZ 内 SSL VPN 双因子认证',
+  desc:'SSL VPN 网关校验“账号密码 + 动态令牌”，通过后分配 VPN 虚拟地址 10.10.30.201，再转交 VDI 连接服务器。终端此时仍不能直接落内网。'},
+ {id:'e4', d:'M600,474 L600,558', from:'broker', to:'core', label:'分配桌面',
+  src:'10.10.30.201:443', dst:'10.10.210.10:443', proto:'TCP / TLS 1.3', action:'allow', enc:'TLS 1.3', fw:'核心 / Broker', policy:'—',
+  title:'④ 连接服务器分配桌面，进入核心',
+  desc:'Broker 依据 AD 组与负载选择桌面池 VM，会话经核心三层网关转发。远程用户只可达 VDI，不能直接访问其他网段。'},
+ {id:'i1', d:'M200,594 L234,594', from:'invdi', to:'accesssw', label:'接入',
+  src:'10.10.100.11', dst:'接入交换机', proto:'以太网 / 802.1X', action:'allow', enc:'内网', fw:'接入层', policy:'MAC/802.1X 认证',
+  title:'① 内网瘦终端发起连接',
+  desc:'办公 / 车间零终端（无硬盘、无本地数据）经接入交换机上联，终端只负责显示与输入。先做 MAC/802.1X 认证，未知设备接入即隔离。'},
+ {id:'i2', d:'M386,594 L468,594', from:'accesssw', to:'core', label:'AD 认证 443',
+  src:'10.10.100.11', dst:'10.10.210.10:443', proto:'HTTPS / AD', action:'allow', enc:'TLS 1.3', fw:'核心 / Broker', policy:'AD 组授权',
+  title:'② 经核心到连接服务器认证',
+  desc:'流量经核心到 VDI 连接服务器，由 AD 统一认证（内网无需 SSL VPN 与双因子），通过后 Broker 分配桌面池。全程不经过互联网与边界防火墙。'},
+ {id:'e5', d:'M600,628 L600,672 L225,672 L225,718', from:'core', to:'itzone', label:'VLAN 110',
+  src:'10.10.30.201', dst:'10.10.110.21', proto:'以太网 / VLAN', action:'allow', enc:'内网（无加密）', fw:'FW2 内部', policy:'按 AD 组授权',
+  title:'进入 IT 办公 / VDI 域',
+  desc:'核心交换机按 VLAN 标签把流量送到办公桌面池，FW2 按 AD 组授权，桌面在此呈现，数据始终留在数据中心。'},
+ {id:'e6', d:'M600,628 L600,718', from:'core', to:'srvzone', label:'TCP 443',
+  src:'10.10.110.21', dst:'10.10.200.11:443', proto:'HTTPS / TLS', action:'allow', enc:'TLS 1.3', fw:'FW2 内部', policy:'策略 #4',
+  title:'访问企业服务器区（ERP）',
+  desc:'在桌面内再发起应用访问，FW2 按 AD 组只放行授权的 ERP/OA(443)。服务器区不接受来自 VPN 的直连，必须经桌面跳转。'},
+ {id:'e7', d:'M600,628 L600,672 L975,672 L975,718', from:'core', to:'idmz', label:'443/1433',
+  src:'10.10.110.21', dst:'10.10.50.11:443', proto:'HTTPS / TDS', action:'allow', enc:'应用层控制', fw:'FW3 IT 侧', policy:'策略 #7',
+  title:'穿过 IT 侧工业防火墙进入 iDMZ',
+  desc:'FW3 做协议感知与 SECS/GEM 函数级控制，仅放只读报表数据、禁止反向连接。iDMZ 是 IT 与 OT 之间不可绕过的缓冲。'},
+ {id:'e8', d:'M470,628 L470,652 L40,652 L40,943 L58,943', from:'core', to:'soc', label:'Syslog 514',
+  src:'全网设备', dst:'10.10.40.11:514', proto:'UDP', action:'allow', enc:'内网', fw:'FW2', policy:'策略 #16',
+  title:'旁路：日志汇聚到 SOC',
+  desc:'沿途设备把会话与策略命中日志经 UDP 514 送 SIEM 审计。这是旁路流量，不影响业务数据路径。'},
+ {id:'e9', d:'M975,806 L975,850 L600,850 L600,898', from:'idmz', to:'meszone', label:'应用代理',
+  src:'10.10.50.14', dst:'10.10.60.11', proto:'应用代理（可网闸）', action:'oneway', enc:'代理 / 可物理单向', fw:'FW4 OT 侧', policy:'策略 #8',
+  title:'经 OT 侧防火墙单向进入 MES',
+  desc:'FW4 默认拒绝、白名单放行，经应用代理（可由物理网闸实现单向）把受控数据送 MES/EAP。IT 侧无法直接触达任何 OT 资产。'},
+ {id:'e10', d:'M765,943 L808,943', from:'meszone', to:'toolzone', label:'HSMS 5000',
+  src:'10.10.60.21', dst:'10.10.61.11:5000', proto:'TCP / HSMS（SEMI E37）', action:'allow', enc:'无（依赖隔离）', fw:'FW5 微隔离', policy:'策略 #9',
+  title:'工艺区微隔离，抵达机台',
+  desc:'FW5 按设备白名单仅放行 EAP 经 HSMS(TCP 5000) 访问机台。机台不能主动外联，各工艺区之间默认不可达。HSMS 本身无加密，安全完全依赖隔离。'},
+ {id:'e11', d:'M600,628 L600,652', from:'core', to:'oob', label:'any',
+  src:'10.10.110.21', dst:'10.10.255.10', proto:'任意协议', action:'deny', enc:'—', fw:'FW2 内部', policy:'策略 #17',
+  title:'尝试访问带外管理 OOB → 拒绝',
+  desc:'OOB 物理独立、仅管理终端可达。业务域的访问被默认拒绝并触发告警，这一跳不会通过。'}
+];
+
+/* ================= 接入方式（两条入口，在核心汇合） ================= */
+var ACCESS = [
+ {id:'wan', name:'外网 VDI', desc:'远程接入 · 经互联网→边界 NGFW→SSL VPN 双因子', prefix:['e1','e2','e3','e4']},
+ {id:'lan', name:'内网 VDI', desc:'本地瘦终端 · 经接入交换机→核心，AD 认证', prefix:['i1','i2']}
+];
+
+/* ================= 目标（核心之后的目标网段） ================= */
+var TARGETS = [
+ {id:'desk', name:'登录 VDI 桌面', dot:'#2563eb', suffix:['e5']},
+ {id:'erp',  name:'访问 ERP 系统', dot:'#2563eb', suffix:['e6']},
+ {id:'mes',  name:'查看 MES 生产数据', dot:'#7c3aed', suffix:['e7','e9']},
+ {id:'tool', name:'远程操控机台', dot:'#d97706', suffix:['e7','e9','e10']},
+ {id:'oob',  name:'访问 OOB（被拒绝）', dot:'#dc2626', tone:'deny', suffix:['e11']}
+];
+
+/* 当前完整路径 = 接入 prefix + 目标 suffix */
+function currentPath(){
+  var a = state.access, t = state.target;
+  return a.prefix.concat(t.suffix);
+}
+
+/* ================= 状态 ================= */
+var state = {access:ACCESS[0], target:TARGETS[0], step:0, playing:false, traveling:null, selected:null, selectedKind:null};
+
+var SVGNS='http://www.w3.org/2000/svg';
+function svgEl(tag, attrs, parent){
+  var e=document.createElementNS(SVGNS,tag);
+  for(var k in attrs){ e.setAttribute(k, attrs[k]); }
+  if(parent) parent.appendChild(e);
+  return e;
+}
+function getNode(id){ for(var i=0;i<NODES.length;i++){if(NODES[i].id===id)return NODES[i];} return null; }
+function getEdge(id){ for(var i=0;i<EDGES.length;i++){if(EDGES[i].id===id)return EDGES[i];} return null; }
+function edgeColor(e){
+  if(e.action==='deny') return '#dc2626';
+  return ZONES[getNode(e.to).zone].stroke;
+}
+
+/* ================= 顶部接入 / 目标控件 ================= */
+function renderAccess(){
+  var box=document.getElementById('access'); box.innerHTML='';
+  ACCESS.forEach(function(a){
+    var b=document.createElement('button');
+    b.type='button'; b.className='access-card'; b.dataset.id=a.id;
+    var icId=a.id==='wan'?'cloud':'vdi';
+    b.innerHTML='<div class="ac-ic '+a.id+'"><svg viewBox="0 0 24 24">'+ICONS[icId]+'</svg></div>'+
+      '<div><div class="ac-t">'+a.name+'</div><div class="ac-d">'+a.desc+'</div></div>';
+    b.addEventListener('click',function(){ setAccess(a); });
+    box.appendChild(b);
+  });
+}
+function renderTargets(){
+  var box=document.getElementById('scenarios'); box.innerHTML='';
+  TARGETS.forEach(function(t){
+    var b=document.createElement('button');
+    b.type='button'; b.className='scenario'; if(t.tone) b.dataset.tone=t.tone;
+    b.innerHTML='<span class="dot" style="background:'+t.dot+'"></span>'+t.name;
+    b.addEventListener('click',function(){ setTarget(t); });
+    box.appendChild(b);
+  });
+}
+function syncControlActive(){
+  var ac=document.querySelectorAll('.access-card');
+  ac.forEach(function(b){ b.classList.toggle('active', b.dataset.id===state.access.id); });
+  var tg=document.querySelectorAll('.scenario');
+  tg.forEach(function(b,i){ b.classList.toggle('active', TARGETS[i].id===state.target.id); });
+}
+
+/* ================= 构建 SVG ================= */
+var topo=document.getElementById('topo');
+var edgeLayer=svgEl('g',{},topo);
+var nodeLayer=svgEl('g',{},topo);
+var packetEl;
+
+function buildDefs(){
+  var defs=svgEl('defs',{},topo);
+  var colors={};
+  EDGES.forEach(function(e){ colors[edgeColor(e)]=1; });
+  Object.keys(colors).forEach(function(c){
+    var id='ar-'+c.replace('#','');
+    var m=svgEl('marker',{id:id,markerWidth:9,markerHeight:9,refX:7.4,refY:4.5,orient:'auto',markerUnits:'userSpaceOnUse'},defs);
+    svgEl('path',{d:'M0,0 L9,4.5 L0,9 z',fill:c},m);
+  });
+}
+function buildEdges(){
+  EDGES.forEach(function(e){
+    var c=edgeColor(e);
+    /* 透明加宽命中区，保证细线/变暗状态下也容易点击与悬停 */
+    svgEl('path',{class:'edge edge-hit','data-id':e.id,d:e.d,fill:'none'},edgeLayer);
+    var p=svgEl('path',{class:'edge edge-visible','data-id':e.id,d:e.d,stroke:c,'marker-end':'url(#ar-'+c.replace('#','')+')'},edgeLayer);
+    e._el=p;
+    var mid=0.5, pt=p.getPointAtLength(p.getTotalLength()*mid);
+    var tx=svgEl('text',{x:pt.x,y:pt.y-5,fill:c,'font-size':11,'font-weight':700,'text-anchor':'middle',
+      style:'paint-order:stroke;stroke:#ffffff;stroke-width:3.5;pointer-events:none'},edgeLayer);
+    tx.textContent=e.label; e._label=tx;
+  });
+}
+function buildNodes(){
+  NODES.forEach(function(n){
+    if(n.box){
+      var g=svgEl('g',{'data-id':n.id},nodeLayer);
+      svgEl('rect',{class:'zone-rect',x:n.x,y:n.y,width:n.w,height:n.h,fill:'rgba(14,143,168,.07)',stroke:ZONES[n.zone].stroke},g);
+      var t=svgEl('text',{class:'zone-title',x:n.x+16,y:n.y+24,fill:ZONES[n.zone].stroke},g); t.textContent=n.name;
+      var s=svgEl('text',{x:n.x+118,y:n.y+24,fill:'#64748b','font-size':11},g); s.textContent=n.sub;
+      n._el=g; return;
+    }
+    var z=ZONES[n.zone];
+    var g=svgEl('g',{class:'node','data-id':n.id},nodeLayer);
+    svgEl('rect',{class:'card',x:n.x,y:n.y,width:n.w,height:n.h,fill:z.fill,stroke:z.stroke},g);
+    var ig=svgEl('g',{transform:'translate('+(n.x+14)+','+(n.y+17)+')'},g);
+    ig.insertAdjacentHTML('beforeend','<g class="nicon" stroke="'+z.stroke+'">'+ICONS[n.icon]+'</g>');
+    var t1=svgEl('text',{class:'nlabel',x:n.x+46,y:n.y+28},g); t1.textContent=n.name;
+    var t2=svgEl('text',{class:'nsub',x:n.x+46,y:n.y+47},g); t2.textContent=n.sub;
+    n._el=g;
+  });
+  packetEl=svgEl('circle',{class:'packet',r:7,cx:-20,cy:-20,opacity:0},nodeLayer);
+}
+
+/* ================= 图例 ================= */
+function renderLegend(){
+  var zones=[['it','IT 办公/VDI'],['dmz','DMZ'],['idmz','工业 iDMZ'],['ot','OT 生产'],['sec','安全/SOC'],['mgmt','管理/基础设施']];
+  var html='';
+  zones.forEach(function(z){ html+='<span class="li"><span class="sw" style="background:'+ZONES[z[0]].stroke+'"></span>'+z[1]+'</span>'; });
+  html+='<span class="li"><span class="ln"></span>有线 / 已放行链路</span>';
+  html+='<span class="li"><span class="ln dash"></span>拒绝（默认阻断）</span>';
+  html+='<span class="li"><span class="sw" style="background:#fbbf24"></span>数据包</span>';
+  document.getElementById('legend').innerHTML=html;
+}
+
+/* ================= 动作 / 通用片段 ================= */
+function actionName(a){ return a==='allow'?'允许':(a==='deny'?'拒绝':'单向'); }
+function chipsHTML(e){
+  var h='<span class="chip '+e.action+'">'+actionName(e.action)+'</span>';
+  if(e.enc && e.enc!=='—') h+='<span class="chip enc">'+e.enc+'</span>';
+  return h;
+}
+function fiveHTML(e){
+  return '<div><span class="k">SRC</span>&nbsp; '+e.src+'</div><div class="arrow">▼</div><div><span class="k">DST</span>&nbsp; '+e.dst+'</div>';
+}
+
+/* ================= 状态应用（点亮 / 变暗 / 流动） ================= */
+function applyState(){
+  var path=currentPath(), total=path.length;
+  var activeSet={};
+  path.slice(0,state.step).forEach(function(id){activeSet[id]=true;});
+  var nodeSet={};
+  if(state.step===0){ nodeSet[state.access.id==='wan'?'vdi':'invdi']=true; }
+  path.slice(0,state.step).forEach(function(id){var e=getEdge(id);nodeSet[e.from]=true;nodeSet[e.to]=true;});
+
+  EDGES.forEach(function(e){
+    var el=e._el; el.classList.remove('dim','flow','selected');
+    var isSel=state.selected===e.id && state.selectedKind==='edge';
+    var lit=activeSet[e.id] || e.id===state.traveling || isSel;
+    if(isSel) el.classList.add('selected');
+    if(activeSet[e.id] || e.id===state.traveling){
+      if(e.id===path[state.step-1] || e.id===state.traveling) el.classList.add('flow');
+    } else if(!isSel){ el.classList.add('dim'); }
+    if(e._label) e._label.style.opacity=lit?'1':'.2';
+  });
+  NODES.forEach(function(n){
+    if(n.box) return;
+    n._el.classList.toggle('dim', !nodeSet[n.id]);
+  });
+  var dmzOn=nodeSet['sslvpn']||nodeSet['broker']||nodeSet['waf'];
+  getNode('dmzbox')._el.classList.toggle('dim',!dmzOn);
+
+  document.getElementById('bar').style.width=(state.step/total*100)+'%';
+  document.getElementById('stepno').textContent=state.step+' / '+total;
+  document.getElementById('prev').disabled=state.step===0;
+  document.getElementById('next').disabled=state.step===total;
+  syncControlActive();
+  renderJourney();
+}
+
+/* ================= 旅程面板 ================= */
+function renderJourney(){
+  var j=document.getElementById('journey');
+  var path=currentPath(), total=path.length;
+  if(state.step===0){
+    var s0=state.access.id==='wan'?'vdi':'invdi';
+    j.innerHTML='<div class="journey-step">准备出发 · 0 / '+total+'</div>'+
+      '<div class="journey-title">'+state.access.name+' → '+state.target.name+'</div>'+
+      '<div class="journey-desc">'+getNode(s0).role+'</div>'+
+      '<div class="hintbox">点击 <b>播放</b> 自动逐跳演示，或用 <b>下一步</b> 手动推进；也可以直接点击图中任意流向查看连接信息。</div>';
+    return;
+  }
+  var e=getEdge(path[state.step-1]);
+  var extra=e.action==='deny'?'<div class="hintbox" style="margin-top:10px">该连接在此被防火墙<b>阻断</b>，不会到达目标。</div>':'';
+  j.innerHTML='<div class="journey-step">第 '+state.step+' 跳 / 共 '+total+' 跳</div>'+
+    '<div class="journey-title">'+e.title+'</div>'+
+    '<div class="journey-desc">'+e.desc+'</div>'+
+    chipsHTML(e)+'<div class="five">'+fiveHTML(e)+'</div>'+extra;
+}
+
+/* ================= 详情面板 ================= */
+function renderDetail(){
+  var d=document.getElementById('detail');
+  if(state.selectedKind==='edge'){
+    var e=getEdge(state.selected);
+    d.innerHTML='<div class="journey-title" style="margin-top:0">'+e.title+'</div>'+
+      chipsHTML(e)+'<div class="five">'+fiveHTML(e)+'</div>'+
+      '<dl class="kv"><dt>协议</dt><dd class="mono">'+e.proto+'</dd>'+
+      '<dt>加密</dt><dd>'+e.enc+'</dd>'+
+      '<dt>防火墙</dt><dd>'+e.fw+'</dd>'+
+      '<dt>策略</dt><dd>'+e.policy+'</dd>'+
+      '<dt>方向</dt><dd class="mono">'+e.from+' → '+e.to+'</dd></dl>';
+  } else if(state.selectedKind==='node'){
+    var n=getNode(state.selected), z=ZONES[n.zone];
+    d.innerHTML='<div class="journey-title" style="margin-top:0">'+n.name+'</div>'+
+      '<span class="chip" style="background:'+z.fill+';color:'+z.stroke+'">'+z.name+'</span>'+
+      '<div class="journey-desc" style="margin-top:10px">'+n.role+'</div>'+
+      '<dl class="kv"><dt>标识</dt><dd class="mono">'+n.id+'</dd>'+
+      '<dt>地址/信息</dt><dd class="mono">'+n.sub+'</dd></dl>';
+  } else {
+    d.innerHTML='<div class="hintbox"><b>操作提示</b><br>· 点击任意 <b>流向线</b> 查看五元组、协议、加密与防火墙策略<br>· 点击任意 <b>设备卡片</b> 查看角色与地址<br>· 鼠标悬停可快速预览</div>';
+  }
+}
+function selectEdge(id){ state.selected=id; state.selectedKind='edge'; applyState(); renderDetail(); }
+function selectNode(id){ state.selected=id; state.selectedKind='node'; applyState(); renderDetail(); }
+
+/* ================= 数据包 ================= */
+function movePacket(pt){ packetEl.setAttribute('cx',pt.x); packetEl.setAttribute('cy',pt.y); packetEl.setAttribute('opacity',1); }
+function placePacketAtEnd(id){ var p=getEdge(id)._el; movePacket(p.getPointAtLength(p.getTotalLength())); }
+function hidePacket(){ packetEl.setAttribute('opacity',0); }
+
+/* ================= 分步播放（rAF 驱动） ================= */
+var raf=null, edgeStart=0, waiting=0;
+var EDGE_DUR=1100, PAUSE=320;
+function setPlayUI(){
+  var icon=document.getElementById('playIcon');
+  if(state.playing){ icon.innerHTML='<path d="M7 5h3v14H7zM14 5h3v14h-3z"/>'; document.getElementById('playTxt').textContent='暂停'; }
+  else { icon.innerHTML='<path d="M8 5v14l11-7z"/>'; document.getElementById('playTxt').textContent='播放'; }
+}
+function startPlay(){
+  if(state.step>=currentPath().length){ state.step=0; }
+  state.playing=true; edgeStart=0; waiting=0; state.traveling=null;
+  setPlayUI(); raf=requestAnimationFrame(tick);
+}
+function stopPlay(){
+  state.playing=false; state.traveling=null; setPlayUI(); applyState();
+  if(state.step>0) placePacketAtEnd(currentPath()[state.step-1]); else hidePacket();
+}
+function tick(ts){
+  if(!state.playing) return;
+  var path=currentPath();
+  if(state.step>=path.length){ stopPlay(); return; }
+  var curId=path[state.step];
+  if(state.traveling!==curId){ state.traveling=curId; applyState(); edgeStart=ts; }
+  if(waiting){ if(ts<waiting){ raf=requestAnimationFrame(tick); return; } waiting=0; edgeStart=ts; }
+  var p=getEdge(curId)._el, len=p.getTotalLength();
+  var raw=(ts-edgeStart)/EDGE_DUR;
+  if(raw>=1){
+    state.traveling=null; state.step++; waiting=ts+PAUSE; applyState(); placePacketAtEnd(curId);
+    raf=requestAnimationFrame(tick); return;
+  }
+  movePacket(p.getPointAtLength(raw*len));
+  raf=requestAnimationFrame(tick);
+}
+
+/* ================= 按钮事件 ================= */
+function setAccess(a){ stopPlay(); state.access=a; state.step=0; state.selected=null; state.selectedKind=null; applyState(); hidePacket(); renderDetail(); }
+function setTarget(t){ stopPlay(); state.target=t; state.step=0; state.selected=null; state.selectedKind=null; applyState(); hidePacket(); renderDetail(); }
+document.getElementById('play').addEventListener('click',function(){ state.playing?stopPlay():startPlay(); });
+document.getElementById('next').addEventListener('click',function(){
+  stopPlay();
+  if(state.step<currentPath().length){ state.step++; applyState(); placePacketAtEnd(currentPath()[state.step-1]); }
+});
+document.getElementById('prev').addEventListener('click',function(){
+  stopPlay();
+  if(state.step>0){ state.step--; applyState(); if(state.step>0) placePacketAtEnd(currentPath()[state.step-1]); else hidePacket(); }
+});
+document.getElementById('reset').addEventListener('click',function(){
+  stopPlay(); state.step=0; state.selected=null; state.selectedKind=null; applyState(); hidePacket(); renderDetail();
+});
+
+/* ================= 悬停 tooltip ================= */
+var tip=document.getElementById('tip');
+function showTip(kind,id,x,y){
+  var html='';
+  if(kind==='edge'){
+    var e=getEdge(id);
+    var cls=e.action==='deny'?'d':'a';
+    html='<div class="tt">'+e.title+'</div><div class="tm">'+e.src+' → '+e.dst+'</div>'+
+      '<div class="ta '+cls+'">'+actionName(e.action)+' · '+e.proto+'</div>';
+  } else {
+    var n=getNode(id);
+    html='<div class="tt">'+n.name+'</div><div class="tm">'+n.sub+'</div><div class="ta a">'+ZONES[n.zone].name+'</div>';
+  }
+  tip.innerHTML=html; tip.classList.add('show'); positionTip(x,y);
+}
+function positionTip(x,y){
+  var w=tip.offsetWidth, h=tip.offsetHeight;
+  var left=x+15, top=y+15;
+  if(left+w>window.innerWidth-8) left=x-w-15;
+  if(top+h>window.innerHeight-8) top=y-h-15;
+  tip.style.left=left+'px'; tip.style.top=top+'px';
+}
+function hideTip(){ tip.classList.remove('show'); }
+
+/* ================= SVG 事件委托 ================= */
+topo.addEventListener('click',function(ev){
+  var edge=ev.target.closest('.edge');
+  if(edge){ selectEdge(edge.dataset.id); return; }
+  var node=ev.target.closest('.node, g[data-id]');
+  if(node && node.dataset.id) selectNode(node.dataset.id);
+});
+topo.addEventListener('mouseover',function(ev){
+  var edge=ev.target.closest('.edge');
+  if(edge){ showTip('edge',edge.dataset.id,ev.clientX,ev.clientY); return; }
+  var node=ev.target.closest('.node, g[data-id]');
+  if(node && node.dataset.id) showTip('node',node.dataset.id,ev.clientX,ev.clientY);
+});
+topo.addEventListener('mousemove',function(ev){
+  if(!tip.classList.contains('show')) return;
+  if(ev.target.closest('.edge')||ev.target.closest('.node, g[data-id]')) positionTip(ev.clientX,ev.clientY);
+});
+topo.addEventListener('mouseout',function(ev){
+  if(!ev.relatedTarget || !topo.contains(ev.relatedTarget)) hideTip();
+});
+
+/* ================= 初始化 ================= */
+buildDefs();
+buildEdges();
+buildNodes();
+renderAccess();
+renderTargets();
+renderLegend();
+applyState();
+renderDetail();
+</script>
+</body>
+</html>
